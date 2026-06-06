@@ -1,284 +1,191 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="corporate-clean">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>学生校内双证管理系统 - 路演演示</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
-/* ==================== BASE RESET + TOKENS ==================== */
 :root {
-  --bg:#ffffff;--bg-soft:#f5f7fa;--surface:#ffffff;--surface-2:#f0f3f7;
-  --border:rgba(10,37,64,.12);--border-strong:rgba(10,37,64,.28);
-  --text-1:#0a2540;--text-2:#425466;--text-3:#8898aa;
-  --accent:#0a2540;--accent-2:#1d4ed8;--accent-3:#64748b;
-  --good:#0e9f6e;--warn:#d97706;--bad:#dc2626;
-  --grad:linear-gradient(135deg,#0a2540,#1d4ed8);
-  --grad-soft:linear-gradient(135deg,#f0f4fb,#e4ecf7);
-  --radius:6px;--radius-sm:4px;--radius-lg:10px;
-  --shadow:0 1px 3px rgba(10,37,64,.08),0 4px 12px rgba(10,37,64,.05);
-  --shadow-lg:0 4px 12px rgba(10,37,64,.1),0 16px 40px rgba(10,37,64,.08);
-  --font-sans:'Inter','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;
-  --font-display:'Inter','Noto Sans SC',sans-serif;
-  --letter-tight:-.03em;--letter-normal:-.01em;
-  --ease:cubic-bezier(.4,0,.2,1);
-  --anim-dur:.7s;
+  --primary: #1e40af;
+  --primary-light: #3b82f6;
+  --primary-dark: #1e3a8a;
+  --accent: #06b6d4;
+  --accent2: #8b5cf6;
+  --success: #10b981;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --bg: #0f172a;
+  --bg2: #1e293b;
+  --surface: #1e293b;
+  --surface2: #334155;
+  --text1: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --border: rgba(148,163,184,.15);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,.3);
+  --font: 'Inter','Noto Sans SC',-apple-system,sans-serif;
+  --ease: cubic-bezier(.4,0,.2,1);
 }
 
-*,*::before,*::after{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--text-1);
-  font-family:var(--font-sans);font-weight:400;line-height:1.6;
-  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
-  letter-spacing:var(--letter-normal)}
-img,svg,video{max-width:100%;display:block}
-a{color:var(--accent-2);text-decoration:none}
-a:hover{text-decoration:underline}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text1);
+  font-family:var(--font);-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
 
-/* ==================== SLIDE SYSTEM ==================== */
-.deck{position:relative;width:100vw;height:100vh;overflow:hidden;background:var(--bg)}
+.deck{position:relative;width:100vw;height:100vh;overflow:hidden}
 .slide{
   position:absolute;inset:0;
-  display:flex;flex-direction:column;justify-content:center;
-  padding:64px 88px;
-  box-sizing:border-box;
+  display:flex;flex-direction:column;
+  padding:60px 80px;
   opacity:0;pointer-events:none;
-  transition:opacity .55s var(--ease),transform .55s var(--ease);
-  transform:translateX(40px);
+  transition:opacity .5s var(--ease),transform .5s var(--ease);
+  transform:scale(.96);
   overflow:hidden;
 }
-.slide.is-active{opacity:1;pointer-events:auto;transform:translateX(0);z-index:2}
-.slide.is-prev{transform:translateX(-40px)}
+.slide.is-active{opacity:1;pointer-events:auto;transform:scale(1);z-index:2}
 
-/* ==================== TYPOGRAPHY ==================== */
-.eyebrow{font-size:13px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--text-3)}
-.kicker{font-size:14px;font-weight:600;color:var(--accent-2);letter-spacing:.08em;text-transform:uppercase}
-h1.title,.h1{font-family:var(--font-display);font-size:64px;line-height:1.08;font-weight:800;letter-spacing:var(--letter-tight);margin:0 0 16px;color:var(--accent)}
-h2.title,.h2{font-family:var(--font-display);font-size:48px;line-height:1.12;font-weight:700;letter-spacing:var(--letter-tight);margin:0 0 14px;color:var(--accent)}
-h3,.h3{font-size:28px;line-height:1.25;font-weight:600;letter-spacing:var(--letter-normal);margin:0 0 10px;color:var(--text-1)}
-h4,.h4{font-size:20px;line-height:1.35;font-weight:600;margin:0 0 8px;color:var(--text-1)}
-.lede{font-size:20px;line-height:1.6;color:var(--text-2);font-weight:300;max-width:62ch}
-.dim{color:var(--text-2)}.dim2{color:var(--text-3)}
-.gradient-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+/* Typography */
+.kicker{font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+h1{font-size:clamp(40px,5.5vw,72px);line-height:1.05;font-weight:900;letter-spacing:-.04em;margin-bottom:16px}
+h2{font-size:clamp(32px,4vw,56px);line-height:1.1;font-weight:800;letter-spacing:-.03em;margin-bottom:12px}
+h3{font-size:clamp(18px,2vw,24px);line-height:1.3;font-weight:700;margin-bottom:8px}
+p.desc{font-size:clamp(14px,1.4vw,18px);line-height:1.7;color:var(--text2)}
+.divider{width:60px;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--primary-light));margin:16px 0 28px}
 
-/* ==================== LAYOUT PRIMITIVES ==================== */
-.stack>*+*{margin-top:14px}
-.row{display:flex;gap:24px;align-items:center}
-.row.wrap{flex-wrap:wrap}
-.grid{display:grid;gap:24px}
-.g2{grid-template-columns:repeat(2,1fr)}
-.g3{grid-template-columns:repeat(3,1fr)}
-.g4{grid-template-columns:repeat(4,1fr)}
-.center{display:flex;align-items:center;justify-content:center;text-align:center}
-.fill{flex:1}
-.mt-s{margin-top:8px}.mt-m{margin-top:18px}.mt-l{margin-top:32px}
-.mb-s{margin-bottom:8px}.mb-m{margin-bottom:18px}.mb-l{margin-bottom:32px}
+/* Layout */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px}
+.flex-center{display:flex;align-items:center;justify-content:center}
+.flex-col{display:flex;flex-direction:column}
+.gap16{gap:16px}.gap20{gap:20px}.gap24{gap:24px}.gap32{gap:32px}
+.mt8{margin-top:8px}.mt16{margin-top:16px}.mt24{margin-top:24px}.mt32{margin-top:32px}
+.mb8{margin-bottom:8px}.mb16{margin-bottom:16px}
+.wfull{width:100%}
+.flex1{flex:1}
 
-/* ==================== CARDS ==================== */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  padding:24px 26px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-.card-accent{background:var(--surface);border-top:3px solid var(--accent-2)}
-.card-soft{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:24px 26px}
-.card-hover{transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
-.card-hover:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
-.pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;
-  background:var(--surface-2);color:var(--text-2);border:1px solid var(--border)}
-.pill-accent{background:rgba(29,78,216,.1);color:var(--accent-2);border-color:rgba(29,78,216,.25)}
-
-/* ==================== DIVIDERS ==================== */
-.divider{height:1px;background:var(--border);width:100%}
-.divider-accent{background:var(--accent-2);height:3px;width:56px;border-radius:2px}
-
-/* ==================== CHROME ==================== */
-.deck-header{position:absolute;top:20px;left:36px;right:36px;display:flex;align-items:center;justify-content:space-between;
-  font-size:11px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;z-index:10;pointer-events:none}
-.deck-footer{position:absolute;bottom:20px;left:36px;right:36px;display:flex;align-items:center;justify-content:space-between;
-  font-size:11px;color:var(--text-3);z-index:10;pointer-events:none}
-.slide-number::before{content:attr(data-current)}
-.slide-number::after{content:" / " attr(data-total)}
-.progress-bar{position:fixed;left:0;right:0;bottom:0;height:3px;background:transparent;z-index:20}
-.progress-bar > span{display:block;height:100%;width:0;background:var(--accent-2);transition:width .3s var(--ease)}
-
-/* ==================== ANIMATIONS ==================== */
-@keyframes kf-fade-up{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
-@keyframes kf-rise{from{opacity:0;transform:translateY(50px) scale(.98);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
-@keyframes kf-zoom{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.03)}100%{opacity:1;transform:scale(1)}}
-@keyframes kf-blur{from{opacity:0;filter:blur(14px)}to{opacity:1;filter:none}}
-.anim-fade-up{animation:kf-fade-up var(--anim-dur) var(--ease) both}
-.anim-rise-in{animation:kf-rise .9s var(--ease) both}
-.anim-zoom-pop{animation:kf-zoom .7s cubic-bezier(.22,1.3,.36,1) both}
-.anim-blur-in{animation:kf-blur .8s var(--ease) both}
-.anim-stagger-list > *{opacity:0;animation:kf-rise .65s var(--ease) both}
-.anim-stagger-list > *:nth-child(1){animation-delay:.05s}
-.anim-stagger-list > *:nth-child(2){animation-delay:.15s}
-.anim-stagger-list > *:nth-child(3){animation-delay:.25s}
-.anim-stagger-list > *:nth-child(4){animation-delay:.35s}
-.anim-stagger-list > *:nth-child(5){animation-delay:.45s}
-.anim-stagger-list > *:nth-child(6){animation-delay:.55s}
-.anim-stagger-list > *:nth-child(7){animation-delay:.65s}
-.anim-stagger-list > *:nth-child(8){animation-delay:.75s}
-.anim-stagger-list > *:nth-child(n+9){animation-delay:.85s}
-
-/* ==================== CUSTOM SLIDE STYLES ==================== */
-/* Cover slide */
-.cover-bg{
-  background:linear-gradient(135deg,#0a2540 0%,#1d4ed8 60%,#3b82f6 100%);
-  color:#fff;
+/* Cards */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:24px 28px;
+  position:relative;
+  overflow:hidden;
 }
-.cover-bg h1.title{color:#fff}
-.cover-bg .lede{color:rgba(255,255,255,.85)}
-.cover-bg .dim2{color:rgba(255,255,255,.55)}
-.cover-bg .divider-accent{background:rgba(255,255,255,.5)}
-
-/* Icon circles */
-.icon-circle{
-  width:48px;height:48px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(29,78,216,.1);color:var(--accent-2);
-  font-size:20px;font-weight:700;flex-shrink:0;
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--primary-light),var(--accent));
+  opacity:0;transition:opacity .3s;
+}
+.card:hover::before{opacity:1}
+.card-glow{
+  background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(6,182,212,.04));
+  border-color:rgba(59,130,246,.2);
+}
+.card-accent{
+  background:linear-gradient(135deg,rgba(6,182,212,.08),rgba(139,92,246,.04));
+  border-color:rgba(6,182,212,.2);
+}
+.card-warn{
+  background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(239,68,68,.04));
+  border-color:rgba(245,158,11,.2);
 }
 
-/* Feature grid items */
-.feature-item{display:flex;gap:16px;align-items:flex-start}
-.feature-item .icon-circle{margin-top:2px}
+/* Stat */
+.stat-box{text-align:center;padding:20px 16px}
+.stat-num{font-size:clamp(36px,4vw,56px);font-weight:900;line-height:1;
+  background:linear-gradient(135deg,var(--accent),var(--primary-light));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stat-label{font-size:13px;color:var(--text3);margin-top:8px;font-weight:500}
 
-/* Tech stack badge */
-.tech-badge{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:10px 18px;border-radius:var(--radius);
-  background:var(--surface-2);border:1px solid var(--border);
-  font-size:14px;font-weight:500;color:var(--text-1);
-  transition:transform .2s var(--ease),box-shadow .2s var(--ease);
+/* Badge */
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:6px;
+  font-size:12px;font-weight:600;
+  background:var(--surface2);color:var(--text2);
+  border:1px solid var(--border);
 }
-.tech-badge:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
-.tech-badge .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.badge-primary{background:rgba(59,130,246,.15);color:var(--primary-light);border-color:rgba(59,130,246,.3)}
+.badge-accent{background:rgba(6,182,212,.15);color:var(--accent);border-color:rgba(6,182,212,.3)}
+.badge-success{background:rgba(16,185,129,.15);color:var(--success);border-color:rgba(16,185,129,.3)}
 
 /* Timeline */
-.timeline{position:relative;padding-left:32px}
-.timeline::before{content:'';position:absolute;left:11px;top:8px;bottom:8px;width:2px;background:var(--border)}
-.timeline-item{position:relative;padding-bottom:28px}
-.timeline-item:last-child{padding-bottom:0}
-.timeline-item::before{
-  content:'';position:absolute;left:-25px;top:6px;
-  width:12px;height:12px;border-radius:50%;
-  background:var(--accent-2);border:2px solid var(--bg);box-shadow:0 0 0 2px var(--accent-2);
-}
-.timeline-item .version{font-size:14px;font-weight:700;color:var(--accent-2);margin-bottom:2px}
-.timeline-item .date{font-size:12px;color:var(--text-3);margin-bottom:4px}
-.timeline-item .desc{font-size:15px;color:var(--text-2);line-height:1.5}
+.tl{position:relative;padding-left:36px}
+.tl::before{content:'';position:absolute;left:12px;top:12px;bottom:12px;width:2px;
+  background:linear-gradient(180deg,var(--accent),var(--primary-light),var(--accent2))}
+.tl-item{position:relative;padding-bottom:24px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:'';position:absolute;left:-30px;top:8px;width:14px;height:14px;
+  border-radius:50%;background:var(--accent);border:3px solid var(--bg);box-shadow:0 0 0 2px var(--accent)}
+.tl-ver{font-size:15px;font-weight:800;color:var(--accent)}
+.tl-date{font-size:12px;color:var(--text3);margin:2px 0 6px}
+.tl-desc{font-size:14px;color:var(--text2);line-height:1.6}
 
-/* Highlight number */
-.stat-number{font-size:42px;font-weight:800;color:var(--accent-2);line-height:1;font-family:var(--font-display)}
-.stat-label{font-size:14px;color:var(--text-3);margin-top:4px}
+/* Tech item */
+.tech-row{display:flex;align-items:flex-start;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)}
+.tech-row:last-child{border-bottom:none}
+.tech-num{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-size:14px;font-weight:800;flex-shrink:0}
+.tech-info{flex:1}
+.tech-info h4{font-size:15px;font-weight:700;margin-bottom:4px}
+.tech-info p{font-size:13px;color:var(--text2);line-height:1.5;margin:0}
 
-/* Architecture diagram */
-.arch-layer{
-  padding:18px 24px;border-radius:var(--radius);
-  border:1px solid var(--border);
-  background:var(--surface);
-}
-.arch-layer-title{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px}
-.arch-layer .tech-list{display:flex;flex-wrap:wrap;gap:8px}
-.arch-layer .tech-tag{
-  padding:5px 14px;border-radius:4px;font-size:13px;font-weight:500;
-  background:var(--surface-2);color:var(--text-1);border:1px solid var(--border);
-}
+/* Arch layer */
+.arch-box{padding:20px 24px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface)}
+.arch-title{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.arch-tags{display:flex;flex-wrap:wrap;gap:8px}
+.arch-tag{padding:6px 16px;border-radius:6px;font-size:13px;font-weight:500;
+  background:var(--surface2);color:var(--text1);border:1px solid var(--border)}
+.arrow-row{display:flex;justify-content:center;padding:4px 0;color:var(--text3)}
 
-/* QA slide */
-.qa-bg{
-  background:linear-gradient(135deg,#0a2540 0%,#1d4ed8 100%);
-  color:#fff;
+/* Cover & Q&A special */
+.slide-dark{
+  background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 40%,#1e40af 70%,#0f172a 100%);
 }
-.qa-bg h2{color:#fff}
-.qa-bg .dim{color:rgba(255,255,255,.7)}
-.qa-bg a{color:rgba(255,255,255,.85)}
+.slide-dark::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 30% 50%,rgba(6,182,212,.15),transparent 60%),
+             radial-gradient(ellipse at 70% 30%,rgba(139,92,246,.1),transparent 50%);
+  pointer-events:none;
+}
+.slide-dark h1,.slide-dark h2{color:#fff}
+.slide-dark p{color:rgba(255,255,255,.7)}
+.slide-dark .divider{background:linear-gradient(90deg,var(--accent),rgba(255,255,255,.3))}
 
-/* Pain point card */
-.pain-card{
-  padding:20px 24px;border-radius:var(--radius);
-  background:var(--surface);border:1px solid var(--border);
-  box-shadow:var(--shadow);
-  display:flex;gap:14px;align-items:flex-start;
-}
-.pain-icon{
-  width:40px;height:40px;border-radius:8px;
+/* Feature list */
+.feat-list{list-style:none;padding:0;margin:0}
+.feat-list li{padding:6px 0;font-size:14px;color:var(--text2);display:flex;align-items:center;gap:8px}
+.feat-list li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+
+/* Icon */
+.icon-box{
+  width:44px;height:44px;border-radius:10px;
   display:flex;align-items:center;justify-content:center;
-  font-size:18px;flex-shrink:0;
+  flex-shrink:0;
 }
 
-/* Solution card */
-.solution-card{
-  padding:22px 24px;border-radius:var(--radius);
-  background:var(--surface);border:1px solid var(--border);
-  box-shadow:var(--shadow);
-  border-left:4px solid var(--accent-2);
-}
-.solution-card h4{color:var(--accent-2);margin-bottom:6px}
-.solution-card p{font-size:14px;color:var(--text-2);line-height:1.5;margin:0}
+/* Progress */
+.progress{position:fixed;left:0;right:0;bottom:0;height:3px;background:transparent;z-index:20}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--primary-light));transition:width .3s}
 
-/* Admin/Student feature list */
-.feature-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-.feature-block{
-  padding:20px 22px;border-radius:var(--radius);
-  background:var(--surface);border:1px solid var(--border);
-  box-shadow:var(--shadow);
-}
-.feature-block h4{font-size:16px;font-weight:700;color:var(--accent-2);margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.feature-block ul{margin:0;padding-left:18px;font-size:14px;color:var(--text-2);line-height:1.7}
+/* Footer */
+.footer{position:fixed;bottom:16px;left:40px;right:40px;display:flex;justify-content:space-between;
+  font-size:11px;color:var(--text3);z-index:10;pointer-events:none}
 
-/* AI highlight card */
-.ai-card{
-  padding:22px 24px;border-radius:var(--radius);
-  background:linear-gradient(135deg,rgba(29,78,216,.06),rgba(29,78,216,.02));
-  border:1px solid rgba(29,78,216,.15);
-  box-shadow:var(--shadow);
-}
-.ai-card h4{color:var(--accent-2);margin-bottom:6px;font-size:17px}
-.ai-card p{font-size:14px;color:var(--text-2);line-height:1.6;margin:0}
-
-/* Tech highlight list */
-.tech-item{
-  display:flex;align-items:flex-start;gap:14px;
-  padding:14px 0;
-  border-bottom:1px solid var(--border);
-}
-.tech-item:last-child{border-bottom:none}
-.tech-item .num{
-  width:28px;height:28px;border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--accent-2);color:#fff;
-  font-size:13px;font-weight:700;flex-shrink:0;
-}
-.tech-item .content{flex:1}
-.tech-item .content h4{font-size:15px;margin-bottom:2px}
-.tech-item .content p{font-size:13px;color:var(--text-2);margin:0;line-height:1.5}
-
-/* Arrow connector */
-.arrow-down{
-  display:flex;justify-content:center;padding:6px 0;
-  color:var(--text-3);font-size:18px;
-}
-
-/* ==================== PRINT ==================== */
-@media print{
-  .slide{position:relative;opacity:1!important;transform:none!important;page-break-after:always;height:100vh}
-  .deck-header,.deck-footer,.progress-bar{display:none!important}
-}
-
-/* ==================== RESPONSIVE ==================== */
+/* Responsive */
 @media(max-width:1024px){
-  .slide{padding:48px 40px}
-  h1.title,.h1{font-size:48px}
-  h2.title,.h2{font-size:36px}
-  .feature-grid{grid-template-columns:1fr}
+  .slide{padding:40px 36px}
+  .grid4{grid-template-columns:1fr 1fr}
 }
 @media(max-width:768px){
-  .slide{padding:32px 24px}
-  h1.title,.h1{font-size:36px}
-  h2.title,.h2{font-size:28px}
-  .g3{grid-template-columns:1fr}
-  .g4{grid-template-columns:repeat(2,1fr)}
+  .slide{padding:28px 20px}
+  .grid2,.grid3,.grid4{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -286,408 +193,573 @@ h4,.h4{font-size:20px;line-height:1.35;font-weight:600;margin:0 0 8px;color:var(
 
 <div class="deck">
 
-  <!-- ==================== SLIDE 1: COVER ==================== -->
-  <div class="slide cover-bg" data-title="封面">
-    <div style="max-width:720px">
-      <div class="divider-accent mb-m" style="background:rgba(255,255,255,.4)"></div>
-      <h1 class="title" style="font-size:56px;line-height:1.12">学生校内双证管理系统</h1>
-      <p class="lede" style="font-size:22px;margin-bottom:32px">AI赋能的证书考试全生命周期管理平台</p>
-      <div style="height:1px;background:rgba(255,255,255,.2);width:100%;margin-bottom:24px"></div>
-      <div class="dim2" style="font-size:14px;line-height:1.8">
-        <div>团队：双证管理系统开发组</div>
-        <div>技术栈：Python Flask + Bootstrap 5 + OpenAI API</div>
-        <div style="margin-top:8px;font-size:12px;opacity:.6">2026年6月</div>
+  <!-- SLIDE 1: COVER -->
+  <div class="slide slide-dark is-active" data-title="封面">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1">
+      <div class="kicker">Dual Certification Management System</div>
+      <h1 style="max-width:800px">学生校内<br>双证管理系统</h1>
+      <div class="divider" style="width:80px"></div>
+      <p class="desc" style="font-size:20px;max-width:600px;margin-bottom:40px">AI赋能的证书考试全生命周期管理平台<br>从报名到取证，一站式数字化解决方案</p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <span class="badge badge-primary">Python Flask</span>
+        <span class="badge badge-accent">PostgreSQL</span>
+        <span class="badge badge-primary">Bootstrap 5</span>
+        <span class="badge badge-accent">ECharts 5</span>
+        <span class="badge badge-primary">OpenAI API</span>
+        <span class="badge badge-accent">Pollinations AI</span>
+      </div>
+      <div style="margin-top:48px;display:flex;gap:40px;align-items:center">
+        <div>
+          <div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:4px">作者</div>
+          <div style="font-size:16px;font-weight:600;color:rgba(255,255,255,.8)">陈政廷</div>
+        </div>
+        <div style="width:1px;height:32px;background:rgba(255,255,255,.15)"></div>
+        <div>
+          <div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:4px">日期</div>
+          <div style="font-size:16px;font-weight:600;color:rgba(255,255,255,.8)">2026年6月</div>
+        </div>
+        <div style="width:1px;height:32px;background:rgba(255,255,255,.15)"></div>
+        <div>
+          <div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:4px">版本</div>
+          <div style="font-size:16px;font-weight:600;color:rgba(255,255,255,.8)">V4.0</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== SLIDE 2: PAIN POINTS ==================== -->
+  <!-- SLIDE 2: PAIN POINTS -->
   <div class="slide" data-title="项目背景与痛点">
-    <div>
-      <div class="kicker mb-s">BACKGROUND</div>
-      <h2 class="title">项目背景与痛点</h2>
-      <div class="divider-accent mb-l"></div>
-      <div class="grid g2" style="gap:20px;max-width:960px">
-        <div class="pain-card">
-          <div class="pain-icon" style="background:rgba(220,38,38,.1);color:var(--bad)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    <div style="flex:1;display:flex;flex-direction:column">
+      <div class="kicker">BACKGROUND & PAIN POINTS</div>
+      <h2>项目背景与痛点</h2>
+      <div class="divider"></div>
+      <div class="grid2 gap20" style="flex:1">
+        <div class="card card-warn" style="display:flex;gap:16px;align-items:flex-start">
+          <div class="icon-box" style="background:rgba(239,68,68,.15)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
           </div>
           <div>
-            <h4>人工管理效率低</h4>
-            <p class="dim" style="font-size:14px;margin:4px 0 0">传统证书管理依赖人工操作，流程繁琐、易出错，无法应对大规模数据</p>
+            <h3>人工管理效率低</h3>
+            <p class="desc" style="font-size:14px">传统证书管理依赖人工操作，流程繁琐、易出错，无法应对大规模学生数据。纸质档案查询困难，信息更新滞后。</p>
           </div>
         </div>
-        <div class="pain-card">
-          <div class="pain-icon" style="background:rgba(217,119,6,.1);color:var(--warn)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div class="card card-warn" style="display:flex;gap:16px;align-items:flex-start">
+          <div class="icon-box" style="background:rgba(245,158,11,.15)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
           <div>
-            <h4>审核周期长</h4>
-            <p class="dim" style="font-size:14px;margin:4px 0 0">报名审核流程繁琐，多级审批耗时，学生等待周期过长</p>
+            <h3>审核周期长</h3>
+            <p class="desc" style="font-size:14px">报名审核流程繁琐，多级审批耗时，学生等待周期过长。缺乏自动化审核机制，人工逐条审核效率极低。</p>
           </div>
         </div>
-        <div class="pain-card">
-          <div class="pain-icon" style="background:rgba(100,116,139,.1);color:var(--accent-3)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        <div class="card" style="display:flex;gap:16px;align-items:flex-start">
+          <div class="icon-box" style="background:rgba(100,116,139,.15)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
           </div>
           <div>
-            <h4>缺乏数据可视化</h4>
-            <p class="dim" style="font-size:14px;margin:4px 0 0">数据分散在表格中，无法直观展示趋势，管理决策缺乏依据</p>
+            <h3>缺乏数据可视化</h3>
+            <p class="desc" style="font-size:14px">数据分散在Excel表格中，无法直观展示趋势，管理决策缺乏依据。领导无法快速掌握全局情况。</p>
           </div>
         </div>
-        <div class="pain-card">
-          <div class="pain-icon" style="background:rgba(29,78,216,.1);color:var(--accent-2)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <div class="card" style="display:flex;gap:16px;align-items:flex-start">
+          <div class="icon-box" style="background:rgba(59,130,246,.15)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           </div>
           <div>
-            <h4>信息渠道分散</h4>
-            <p class="dim" style="font-size:14px;margin:4px 0 0">学生获取证书信息渠道分散，缺乏统一入口和智能引导</p>
+            <h3>信息渠道分散</h3>
+            <p class="desc" style="font-size:14px">学生获取证书信息渠道分散，缺乏统一入口和智能引导。报名条件、考试时间等信息难以集中获取。</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== SLIDE 3: SOLUTION ==================== -->
+  <!-- SLIDE 3: SOLUTION -->
   <div class="slide" data-title="解决方案">
-    <div>
-      <div class="kicker mb-s">SOLUTION</div>
-      <h2 class="title">解决方案</h2>
-      <div class="divider-accent mb-l"></div>
-      <div class="grid g2" style="gap:20px;max-width:960px">
-        <div class="solution-card">
-          <h4>全流程数字化管理</h4>
-          <p>从证书录入、考试排期、学生报名到成绩管理，实现全生命周期线上闭环</p>
+    <div style="flex:1;display:flex;flex-direction:column">
+      <div class="kicker">OUR SOLUTION</div>
+      <h2>解决方案</h2>
+      <div class="divider"></div>
+      <div class="grid2 gap20" style="flex:1">
+        <div class="card card-glow" style="border-left:4px solid var(--primary-light)">
+          <h3 style="color:var(--primary-light)">全流程数字化管理</h3>
+          <p class="desc" style="font-size:14px;margin-top:8px">从证书录入、考试排期、学生报名到成绩管理，实现全生命周期线上闭环。支持批量导入、材料归档、证书推荐。</p>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+            <span class="badge badge-primary">证书CRUD</span>
+            <span class="badge badge-primary">考试排期</span>
+            <span class="badge badge-primary">批量导入</span>
+          </div>
         </div>
-        <div class="solution-card">
-          <h4>AI智能审核 + 人工复核</h4>
-          <p>AI自动完成资格校验与材料初审，人工仅需复核异常案例，效率提升80%</p>
+        <div class="card card-accent" style="border-left:4px solid var(--accent)">
+          <h3 style="color:var(--accent)">AI智能审核 + 人工复核</h3>
+          <p class="desc" style="font-size:14px;margin-top:8px">AI自动完成资格校验与材料初审，人工仅需复核异常案例。异步执行 + 前端轮询，审核效率提升80%。</p>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+            <span class="badge badge-accent">异步审核</span>
+            <span class="badge badge-accent">差异化结果</span>
+            <span class="badge badge-accent">前端轮询</span>
+          </div>
         </div>
-        <div class="solution-card">
-          <h4>数据大屏实时监控</h4>
-          <p>ECharts可视化大屏，一屏掌握报名趋势、证书分布、考试进度等核心指标</p>
+        <div class="card card-glow" style="border-left:4px solid var(--accent2)">
+          <h3 style="color:var(--accent2)">数据大屏实时监控</h3>
+          <p class="desc" style="font-size:14px;margin-top:8px">ECharts可视化大屏，一屏掌握报名趋势、证书分布、考试进度等核心指标。不可滚动，沉浸式体验。</p>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+            <span class="badge" style="background:rgba(139,92,246,.15);color:var(--accent2);border-color:rgba(139,92,246,.3)">5大图表</span>
+            <span class="badge" style="background:rgba(139,92,246,.15);color:var(--accent2);border-color:rgba(139,92,246,.3)">全屏展示</span>
+          </div>
         </div>
-        <div class="solution-card">
-          <h4>AI知识库引导机器人</h4>
-          <p>基于11种证书规则的知识库，意图识别 + 关键词匹配，7x24小时智能答疑</p>
+        <div class="card card-accent" style="border-left:4px solid var(--success)">
+          <h3 style="color:var(--success)">AI知识库引导机器人</h3>
+          <p class="desc" style="font-size:14px;margin-top:8px">覆盖11种证书规则的知识库，意图识别 + 关键词匹配双引擎，7x24小时智能答疑。快捷问题一键触达。</p>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+            <span class="badge badge-success">11种证书</span>
+            <span class="badge badge-success">意图识别</span>
+            <span class="badge badge-success">24/7</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== SLIDE 4: TECH ARCHITECTURE ==================== -->
+  <!-- SLIDE 4: TECH ARCHITECTURE -->
   <div class="slide" data-title="技术架构">
-    <div>
-      <div class="kicker mb-s">ARCHITECTURE</div>
-      <h2 class="title">技术架构</h2>
-      <div class="divider-accent mb-m"></div>
-      <div style="max-width:880px">
-        <div class="arch-layer" style="margin-bottom:8px;border-top:3px solid var(--accent-2)">
-          <div class="arch-layer-title">前端展示层</div>
-          <div class="tech-list">
-            <span class="tech-tag">Bootstrap 5</span>
-            <span class="tech-tag">ECharts 5</span>
-            <span class="tech-tag">响应式布局</span>
-            <span class="tech-tag">数据大屏</span>
-          </div>
-        </div>
-        <div class="arrow-down">
-          <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M10 0 L10 12 M4 8 L10 14 L16 8" stroke="var(--text-3)" stroke-width="1.5"/></svg>
-        </div>
-        <div class="arch-layer" style="margin-bottom:8px;border-top:3px solid var(--good)">
-          <div class="arch-layer-title">后端服务层</div>
-          <div class="tech-list">
-            <span class="tech-tag">Python Flask</span>
-            <span class="tech-tag">SQLAlchemy ORM</span>
-            <span class="tech-tag">JWT双角色认证</span>
-            <span class="tech-tag">RESTful API</span>
-          </div>
-        </div>
-        <div class="arrow-down">
-          <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M10 0 L10 12 M4 8 L10 14 L16 8" stroke="var(--text-3)" stroke-width="1.5"/></svg>
-        </div>
-        <div style="display:flex;gap:12px">
-          <div class="arch-layer fill" style="border-top:3px solid var(--warn)">
-            <div class="arch-layer-title">AI 服务</div>
-            <div class="tech-list">
-              <span class="tech-tag">OpenAI兼容API</span>
-              <span class="tech-tag">知识库匹配</span>
-              <span class="tech-tag">Pollinations AI</span>
+    <div style="flex:1;display:flex;flex-direction:column">
+      <div class="kicker">TECH ARCHITECTURE</div>
+      <h2>技术架构</h2>
+      <div class="divider"></div>
+      <div style="flex:1;display:flex;gap:32px;align-items:stretch">
+        <div style="flex:1.2;display:flex;flex-direction:column;gap:8px">
+          <div class="arch-box" style="border-top:3px solid var(--primary-light)">
+            <div class="arch-title" style="color:var(--primary-light)">前端展示层</div>
+            <div class="arch-tags">
+              <span class="arch-tag">Bootstrap 5</span>
+              <span class="arch-tag">ECharts 5</span>
+              <span class="arch-tag">响应式布局</span>
+              <span class="arch-tag">数据大屏</span>
+              <span class="arch-tag">AI聊天组件</span>
             </div>
           </div>
-          <div class="arch-layer fill" style="border-top:3px solid #8b5cf6">
-            <div class="arch-layer-title">数据存储</div>
-            <div class="tech-list">
-              <span class="tech-tag">PostgreSQL</span>
-              <span class="tech-tag">腾讯云SMS</span>
+          <div class="arrow-row"><svg width="16" height="14" viewBox="0 0 16 14" fill="none"><path d="M8 0 L8 10 M3 6 L8 12 L13 6" stroke="var(--text3)" stroke-width="1.5"/></svg></div>
+          <div class="arch-box" style="border-top:3px solid var(--success)">
+            <div class="arch-title" style="color:var(--success)">后端服务层</div>
+            <div class="arch-tags">
+              <span class="arch-tag">Python Flask</span>
+              <span class="arch-tag">SQLAlchemy ORM</span>
+              <span class="arch-tag">JWT双角色认证</span>
+              <span class="arch-tag">RESTful API</span>
+              <span class="arch-tag">异步任务</span>
             </div>
+          </div>
+          <div class="arrow-row"><svg width="16" height="14" viewBox="0 0 16 14" fill="none"><path d="M8 0 L8 10 M3 6 L8 12 L13 6" stroke="var(--text3)" stroke-width="1.5"/></svg></div>
+          <div style="display:flex;gap:12px">
+            <div class="arch-box flex1" style="border-top:3px solid var(--warn)">
+              <div class="arch-title" style="color:var(--warn)">AI 服务</div>
+              <div class="arch-tags">
+                <span class="arch-tag">OpenAI API</span>
+                <span class="arch-tag">知识库匹配</span>
+                <span class="arch-tag">Pollinations</span>
+              </div>
+            </div>
+            <div class="arch-box flex1" style="border-top:3px solid var(--accent2)">
+              <div class="arch-title" style="color:var(--accent2)">数据存储</div>
+              <div class="arch-tags">
+                <span class="arch-tag">PostgreSQL</span>
+                <span class="arch-tag">腾讯云SMS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:0.8;display:flex;flex-direction:column;gap:16px">
+          <div class="card card-glow" style="text-align:center">
+            <div style="font-size:36px;font-weight:900;color:var(--primary-light)">11</div>
+            <div style="font-size:13px;color:var(--text3);margin-top:4px">数据模型</div>
+          </div>
+          <div class="card card-accent" style="text-align:center">
+            <div style="font-size:36px;font-weight:900;color:var(--accent)">20+</div>
+            <div style="font-size:13px;color:var(--text3);margin-top:4px">API接口</div>
+          </div>
+          <div class="card" style="text-align:center;background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.2)">
+            <div style="font-size:36px;font-weight:900;color:var(--accent2)">6</div>
+            <div style="font-size:13px;color:var(--text3);margin-top:4px">业务服务</div>
+          </div>
+          <div class="card" style="text-align:center;background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.2)">
+            <div style="font-size:36px;font-weight:900;color:var(--success)">4</div>
+            <div style="font-size:13px;color:var(--text3);margin-top:4px">迭代版本</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== SLIDE 5: ADMIN FEATURES ==================== -->
+  <!-- SLIDE 5: ADMIN FEATURES -->
   <div class="slide" data-title="管理员端功能">
-    <div>
-      <div class="kicker mb-s">ADMIN PANEL</div>
-      <h2 class="title">管理员端功能</h2>
-      <div class="divider-accent mb-m"></div>
-      <div class="feature-grid" style="max-width:960px">
-        <div class="feature-block">
-          <h4>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            仪表盘
-          </h4>
-          <ul>
+    <div style="flex:1;display:flex;flex-direction:column">
+      <div class="kicker">ADMIN PANEL</div>
+      <h2>管理员端功能</h2>
+      <div class="divider"></div>
+      <div class="grid3 gap20" style="flex:1">
+        <div class="card card-glow">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div class="icon-box" style="background:rgba(59,130,246,.15)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </div>
+            <h3 style="margin:0;color:var(--primary-light)">管理仪表盘</h3>
+          </div>
+          <ul class="feat-list">
             <li>统计卡片：证书/考试/学生/报名数</li>
-            <li>趋势图：月度报名趋势</li>
-            <li>分类图：证书类型分布</li>
+            <li>月度报名趋势折线图</li>
+            <li>证书类型分布饼图</li>
+            <li>通过率实时计算</li>
           </ul>
         </div>
-        <div class="feature-block">
-          <h4>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            证书管理
-          </h4>
-          <ul>
+        <div class="card card-glow">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div class="icon-box" style="background:rgba(59,130,246,.15)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <h3 style="margin:0;color:var(--primary-light)">证书管理</h3>
+          </div>
+          <ul class="feat-list">
             <li>完整CRUD操作</li>
             <li>三大分类：人社类/专业类/校内引进</li>
             <li>搜索筛选 + 分页</li>
+            <li>报名规则配置</li>
           </ul>
         </div>
-        <div class="feature-block">
-          <h4>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            考试管理
-          </h4>
-          <ul>
+        <div class="card card-glow">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div class="icon-box" style="background:rgba(59,130,246,.15)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <h3 style="margin:0;color:var(--primary-light)">考试管理</h3>
+          </div>
+          <ul class="feat-list">
             <li>考试排期与容量设置</li>
             <li>费用管理与状态追踪</li>
             <li>报名人数实时统计</li>
+            <li>批量导入考试数据</li>
           </ul>
         </div>
-        <div class="feature-block">
-          <h4>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            审核中心
-          </h4>
-          <ul>
+        <div class="card card-accent">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div class="icon-box" style="background:rgba(6,182,212,.15)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <h3 style="margin:0;color:var(--accent)">审核中心</h3>
+          </div>
+          <ul class="feat-list">
             <li>AI智能审核 + 人工审核</li>
             <li>异步执行 + 前端轮询</li>
             <li>差异化审核结果展示</li>
+            <li>批量审核一键处理</li>
           </ul>
         </div>
-      </div>
-      <div style="margin-top:18px;max-width:960px">
-        <div class="feature-block" style="background:linear-gradient(135deg,rgba(29,78,216,.04),rgba(29,78,216,.01));border-color:rgba(29,78,216,.15)">
-          <h4>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-            数据大屏
-          </h4>
-          <ul style="display:flex;gap:24px;flex-wrap:wrap">
-            <li>全屏ECharts可视化</li>
-            <li>一屏展示核心指标</li>
-            <li>不可滚动，沉浸式体验</li>
-          </ul>
+        <div class="card" style="grid-column:span 2;background:linear-gradient(135deg,rgba(139,92,246,.06),rgba(6,182,212,.03));border-color:rgba(139,92,246,.2)">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div class="icon-box" style="background:rgba(139,92,246,.15)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <h3 style="margin:0;color:var(--accent2)">数据大屏</h3>
+            <span class="badge" style="background:rgba(139,92,246,.15);color:var(--accent2);border-color:rgba(139,92,246,.3)">核心亮点</span>
+          </div>
+          <div style="display:flex;gap:24px">
+            <ul class="feat-list" style="flex:1">
+              <li>全屏ECharts可视化，5大图表</li>
+              <li>一屏展示核心业务指标</li>
+              <li>不可滚动，沉浸式体验</li>
+            </ul>
+            <ul class="feat-list" style="flex:1">
+              <li>报名趋势 + 分类分布 + 状态统计</li>
+              <li>退出大屏按钮，中文标签</li>
+              <li>viewport锁定，自适应布局</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== SLIDE 6: STUDENT FEATURES ==================== -->
+  <!-- SLIDE 6: STUDENT FEATURES -->
   <div class="slide" data-title="学生端功能">
-    <div>
-      <div class="kicker mb-s">STUDENT PORTAL</div>
-      <h2 class="title">学生端功能</h2>
-      <div class="divider-accent mb-m"></div>
-      <div class="feature-grid" style="max-width:960px">
-        <div class="feature-block">
-          <h4>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            个人仪表盘
-          </h4>
-          <ul>
+    <div style="flex:1;display:flex;flex-direction:column">
+      <div class="kicker">STUDENT PORTAL</div>
+      <h2>学生端功能</h2>
+      <div class="divider"></div>
+      <div class="grid2 gap20" style="flex:1">
+        <div class="card card-glow">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div class="icon-box" style="background:rgba(59,130,246,.15)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <h3 style="margin:0;color:var(--primary-light)">个人仪表盘</h3>
+          </div>
+          <ul class="feat-list">
             <li>个人统计：已获证书/已报名/待审核</li>
             <li>最近报名记录快速查看</li>
-            <li>AI头像自动生成</li>
+            <li>Pollinations AI头像自动生成</li>
+            <li>考试进度全程可追踪</li>
           </ul>
         </div>
-        <div class="feature-block">
-          <h4>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-            证书浏览
-          </h4>
-          <ul>
+        <div class="card card-glow">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div class="icon-box" style="background:rgba(59,130,246,.15)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <h3 style="margin:0;color:var(--primary-light)">证书浏览</h3>
+          </div>
+          <ul class="feat-list">
             <li>分类Tab切换浏览</li>
             <li>人社类 / 专业类 / 校内引进</li>
             <li>证书详情与报名入口</li>
+            <li>培训资料在线查看</li>
           </ul>
         </div>
-        <div class="feature-block">
-          <h4>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            考试报名
-          </h4>
-          <ul>
+        <div class="card card-accent">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div class="icon-box" style="background:rgba(6,182,212,.15)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+            <h3 style="margin:0;color:var(--accent)">考试报名</h3>
+            <span class="badge badge-accent">交互优化</span>
+          </div>
+          <ul class="feat-list">
             <li>一键报名 + 实时状态反馈</li>
             <li>已报名灰色禁用防重复</li>
-            <li>报名进度全程可追踪</li>
+            <li>重复报名中文提示</li>
+            <li>报名成功自动刷新列表</li>
           </ul>
         </div>
-        <div class="feature-block" style="background:linear-gradient(135deg,rgba(29,78,216,.04),rgba(29,78,216,.01));border-color:rgba(29,78,216,.15)">
-          <h4>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            AI引导机器人
-          </h4>
-          <ul>
-            <li>知识库智能问答</li>
-            <li>意图识别 + 关键词匹配</li>
+        <div class="card" style="background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(6,182,212,.04));border-color:rgba(16,185,129,.2)">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div class="icon-box" style="background:rgba(16,185,129,.15)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3 style="margin:0;color:var(--success)">AI引导机器人</h3>
+            <span class="badge badge-success">AI赋能</span>
+          </div>
+          <ul class="feat-list">
+            <li>知识库智能问答，11种证书规则</li>
+            <li>意图识别 + 关键词匹配双引擎</li>
             <li>快捷问题一键咨询</li>
+            <li>浮动聊天窗口，全局可用</li>
           </ul>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== SLIDE 7: AI HIGHLIGHTS ==================== -->
+  <!-- SLIDE 7: AI HIGHLIGHTS -->
   <div class="slide" data-title="AI赋能亮点">
-    <div>
-      <div class="kicker mb-s">AI POWERED</div>
-      <h2 class="title">AI赋能亮点</h2>
-      <div class="divider-accent mb-m"></div>
-      <div class="grid g2" style="gap:20px;max-width:960px">
-        <div class="ai-card">
-          <h4>AI智能审核</h4>
-          <p>差异化审核结果展示，异步执行（threading）+ 前端轮询机制，审核效率提升80%</p>
+    <div style="flex:1;display:flex;flex-direction:column">
+      <div class="kicker">AI POWERED</div>
+      <h2>AI赋能亮点</h2>
+      <div class="divider"></div>
+      <div style="display:flex;gap:32px;flex:1">
+        <div style="flex:1.3;display:flex;flex-direction:column;gap:16px">
+          <div class="card card-accent" style="display:flex;gap:16px;align-items:flex-start">
+            <div class="icon-box" style="background:rgba(6,182,212,.15)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div>
+              <h3 style="color:var(--accent)">AI智能审核</h3>
+              <p class="desc" style="font-size:14px;margin-top:4px">差异化审核结果：根据报名材料完整性生成不同审核意见。异步执行（threading）+ 前端轮询机制，审核效率提升80%。</p>
+            </div>
+          </div>
+          <div class="card" style="background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2);display:flex;gap:16px;align-items:flex-start">
+            <div class="icon-box" style="background:rgba(16,185,129,.15)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+              <h3 style="color:var(--success)">AI知识库机器人</h3>
+              <p class="desc" style="font-size:14px;margin-top:4px">覆盖11种证书规则，意图识别 + 关键词匹配双引擎。快捷问题一键触达，7x24小时智能答疑。</p>
+            </div>
+          </div>
+          <div class="card card-glow" style="display:flex;gap:16px;align-items:flex-start">
+            <div class="icon-box" style="background:rgba(59,130,246,.15)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            </div>
+            <div>
+              <h3 style="color:var(--primary-light)">Pollinations AI头像</h3>
+              <p class="desc" style="font-size:14px;margin-top:4px">学生头像自动生成，基于Pollinations AI免费API，零成本个性化体验。每位学生拥有独特头像。</p>
+            </div>
+          </div>
+          <div class="card" style="background:rgba(139,92,246,.06);border-color:rgba(139,92,246,.2);display:flex;gap:16px;align-items:flex-start">
+            <div class="icon-box" style="background:rgba(139,92,246,.15)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg>
+            </div>
+            <div>
+              <h3 style="color:var(--accent2)">全中文界面</h3>
+              <p class="desc" style="font-size:14px;margin-top:4px">18种状态标签统一中文映射，登录错误提示中文化，从技术状态码到用户友好提示的完整本地化。</p>
+            </div>
+          </div>
         </div>
-        <div class="ai-card">
-          <h4>AI知识库机器人</h4>
-          <p>覆盖11种证书规则，意图识别 + 关键词匹配双引擎，快捷问题一键触达</p>
-        </div>
-        <div class="ai-card">
-          <h4>Pollinations AI头像</h4>
-          <p>学生头像自动生成，基于Pollinations AI免费API，零成本个性化体验</p>
-        </div>
-        <div class="ai-card">
-          <h4>全中文界面</h4>
-          <p>18种状态标签统一中文映射，从技术状态码到用户友好提示的完整本地化</p>
-        </div>
-      </div>
-      <div style="margin-top:28px;max-width:960px;display:flex;gap:32px;align-items:center">
-        <div style="text-align:center">
-          <div class="stat-number">11</div>
-          <div class="stat-label">证书知识规则</div>
-        </div>
-        <div style="text-align:center">
-          <div class="stat-number">18</div>
-          <div class="stat-label">状态标签映射</div>
-        </div>
-        <div style="text-align:center">
-          <div class="stat-number">80%</div>
-          <div class="stat-label">审核效率提升</div>
-        </div>
-        <div style="text-align:center">
-          <div class="stat-number">24/7</div>
-          <div class="stat-label">AI在线答疑</div>
+        <div style="flex:0.7;display:grid;grid-template-columns:1fr 1fr;gap:16px;align-content:center">
+          <div class="stat-box" style="background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2);border-radius:var(--radius)">
+            <div class="stat-num">11</div>
+            <div class="stat-label">证书知识规则</div>
+          </div>
+          <div class="stat-box" style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:var(--radius)">
+            <div class="stat-num">18</div>
+            <div class="stat-label">状态标签映射</div>
+          </div>
+          <div class="stat-box" style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:var(--radius)">
+            <div class="stat-num">80%</div>
+            <div class="stat-label">审核效率提升</div>
+          </div>
+          <div class="stat-box" style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:var(--radius)">
+            <div class="stat-num">24/7</div>
+            <div class="stat-label">AI在线答疑</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== SLIDE 8: ITERATION HISTORY ==================== -->
+  <!-- SLIDE 8: ITERATION -->
   <div class="slide" data-title="迭代历程">
-    <div style="max-width:860px">
-      <div class="kicker mb-s">ITERATION</div>
-      <h2 class="title">迭代历程</h2>
-      <div class="divider-accent mb-m"></div>
-      <div class="timeline">
-        <div class="timeline-item">
-          <div class="version">V1 基础框架</div>
-          <div class="date">2026-06-06</div>
-          <div class="desc">7项核心功能：用户认证、证书CRUD、考试管理、报名流程、基础仪表盘、数据大屏、AI审核</div>
+    <div style="flex:1;display:flex;gap:40px">
+      <div style="flex:1.2">
+        <div class="kicker">ITERATION LOG</div>
+        <h2>迭代历程</h2>
+        <div class="divider"></div>
+        <div class="tl">
+          <div class="tl-item">
+            <div class="tl-ver">V1 基础框架</div>
+            <div class="tl-date">2026-06-06</div>
+            <div class="tl-desc">7项核心功能：Flask应用工厂、JWT双角色认证、证书CRUD、考试管理、报名流程、基础仪表盘、AI审核集成</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-ver">V2 拓展功能</div>
+            <div class="tl-date">2026-06-06</div>
+            <div class="tl-desc">5项增强：短信通知（腾讯云SMS）、教务系统对接、证书推荐引擎、数据大屏、操作日志审计</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-ver">V3 架构升级</div>
+            <div class="tl-date">2026-06-07</div>
+            <div class="tl-desc">4项升级：SQLite→PostgreSQL迁移、Bootstrap 5 UI重构、安全加固（.env配置）、API路由冲突修复</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-ver">V4 体验优化</div>
+            <div class="tl-date">2026-06-07</div>
+            <div class="tl-desc">8项UX增强：中文状态映射、异步审核轮询、证书分类对齐、报名状态反馈、AI知识库机器人、数据大屏优化</div>
+          </div>
         </div>
-        <div class="timeline-item">
-          <div class="version">V2 拓展功能</div>
-          <div class="date">2026-06-06</div>
-          <div class="desc">5项增强：AI知识库机器人、学生端仪表盘、证书分类Tab、报名状态反馈、头像生成</div>
+      </div>
+      <div style="flex:0.8;display:flex;flex-direction:column;gap:16px;justify-content:center">
+        <div class="card" style="text-align:center">
+          <div style="font-size:13px;color:var(--text3);margin-bottom:8px">总代码行数</div>
+          <div style="font-size:40px;font-weight:900;color:var(--primary-light)">5000+</div>
         </div>
-        <div class="timeline-item">
-          <div class="version">V3 架构升级</div>
-          <div class="date">2026-06-07</div>
-          <div class="desc">PostgreSQL迁移 + UI全面重构 + 响应式布局优化 + 数据大屏升级</div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:13px;color:var(--text3);margin-bottom:8px">迭代次数</div>
+          <div style="font-size:40px;font-weight:900;color:var(--accent)">4</div>
         </div>
-        <div class="timeline-item">
-          <div class="version">V4 体验优化</div>
-          <div class="date">2026-06-07</div>
-          <div class="desc">8项UX增强：中文状态映射、异步审核轮询、快捷问题、移动端适配、安全配置等</div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:13px;color:var(--text3);margin-bottom:8px">功能模块</div>
+          <div style="font-size:40px;font-weight:900;color:var(--success)">24</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:13px;color:var(--text3);margin-bottom:8px">测试通过率</div>
+          <div style="font-size:40px;font-weight:900;color:var(--accent2)">100%</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== SLIDE 9: TECH HIGHLIGHTS ==================== -->
+  <!-- SLIDE 9: TECH HIGHLIGHTS -->
   <div class="slide" data-title="技术亮点">
-    <div style="max-width:860px">
-      <div class="kicker mb-s">TECHNICAL</div>
-      <h2 class="title">技术亮点</h2>
-      <div class="divider-accent mb-m"></div>
-      <div class="tech-item">
-        <div class="num">1</div>
-        <div class="content">
-          <h4>JWT双角色认证 + 中文错误提示</h4>
-          <p>管理员/学生双角色JWT认证体系，全链路中文错误提示，安全且友好</p>
+    <div style="flex:1;display:flex;gap:40px">
+      <div style="flex:1.3">
+        <div class="kicker">TECHNICAL HIGHLIGHTS</div>
+        <h2>技术亮点</h2>
+        <div class="divider"></div>
+        <div class="tech-row">
+          <div class="tech-num">1</div>
+          <div class="tech-info">
+            <h4>JWT双角色认证 + 中文错误提示</h4>
+            <p>管理员/学生双角色JWT认证体系，全链路中文错误提示，登录框内联显示，安全且友好</p>
+          </div>
+        </div>
+        <div class="tech-row">
+          <div class="tech-num">2</div>
+          <div class="tech-info">
+            <h4>异步AI审核（threading + 轮询）</h4>
+            <p>后台线程执行AI审核，前端每2秒轮询获取结果，避免阻塞，用户体验流畅</p>
+          </div>
+        </div>
+        <div class="tech-row">
+          <div class="tech-num">3</div>
+          <div class="tech-info">
+            <h4>知识库关键词匹配 + 意图识别</h4>
+            <p>双引擎智能问答，关键词精确匹配 + 意图词识别，覆盖11种证书规则</p>
+          </div>
+        </div>
+        <div class="tech-row">
+          <div class="tech-num">4</div>
+          <div class="tech-info">
+            <h4>响应式布局 + 移动端适配</h4>
+            <p>Bootstrap 5栅格系统，多断点适配，手机/平板/桌面全场景覆盖</p>
+          </div>
+        </div>
+        <div class="tech-row">
+          <div class="tech-num">5</div>
+          <div class="tech-info">
+            <h4>数据大屏一屏展示 + 不可滚动</h4>
+            <p>ECharts 5全屏可视化，viewport锁定，vh/vw + clamp自适应，沉浸式数据监控</p>
+          </div>
+        </div>
+        <div class="tech-row">
+          <div class="tech-num">6</div>
+          <div class="tech-info">
+            <h4>安全配置（.env + 默认值回退）</h4>
+            <p>环境变量隔离敏感配置，SQLite默认值回退机制，开发/生产环境无缝切换</p>
+          </div>
         </div>
       </div>
-      <div class="tech-item">
-        <div class="num">2</div>
-        <div class="content">
-          <h4>异步AI审核（threading + 轮询）</h4>
-          <p>后台线程执行AI审核，前端轮询获取结果，避免阻塞，用户体验流畅</p>
+      <div style="flex:0.7;display:flex;flex-direction:column;gap:16px;justify-content:center">
+        <div class="card card-glow">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:8px">后端框架</div>
+          <div style="font-size:20px;font-weight:800;color:var(--primary-light)">Python Flask</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px">SQLAlchemy + JWT + threading</div>
         </div>
-      </div>
-      <div class="tech-item">
-        <div class="num">3</div>
-        <div class="content">
-          <h4>知识库关键词匹配 + 意图识别</h4>
-          <p>双引擎智能问答，关键词精确匹配 + LLM意图理解，覆盖11种证书规则</p>
+        <div class="card card-accent">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:8px">前端框架</div>
+          <div style="font-size:20px;font-weight:800;color:var(--accent)">Bootstrap 5</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px">ECharts + 响应式 + AI组件</div>
         </div>
-      </div>
-      <div class="tech-item">
-        <div class="num">4</div>
-        <div class="content">
-          <h4>响应式布局 + 移动端适配</h4>
-          <p>Bootstrap 5栅格系统，多断点适配，手机/平板/桌面全场景覆盖</p>
+        <div class="card" style="background:rgba(139,92,246,.06);border-color:rgba(139,92,246,.2)">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:8px">AI服务</div>
+          <div style="font-size:20px;font-weight:800;color:var(--accent2)">OpenAI API</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px">审核 + 知识库 + 头像生成</div>
         </div>
-      </div>
-      <div class="tech-item">
-        <div class="num">5</div>
-        <div class="content">
-          <h4>数据大屏一屏展示 + 不可滚动</h4>
-          <p>ECharts 5全屏可视化，viewport锁定，沉浸式数据监控体验</p>
-        </div>
-      </div>
-      <div class="tech-item">
-        <div class="num">6</div>
-        <div class="content">
-          <h4>安全配置（.env + 默认值回退）</h4>
-          <p>环境变量隔离敏感配置，默认值回退机制，开发/生产环境无缝切换</p>
+        <div class="card" style="background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2)">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:8px">数据库</div>
+          <div style="font-size:20px;font-weight:800;color:var(--success)">PostgreSQL</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px">11个模型 + 20+ API</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== SLIDE 10: Q&A ==================== -->
-  <div class="slide qa-bg" data-title="Q&A">
-    <div class="center" style="flex-direction:column;width:100%">
-      <div style="max-width:600px;text-align:center">
-        <div style="font-size:64px;margin-bottom:24px;opacity:.3">Q&A</div>
-        <h2 style="font-size:42px;font-weight:800;margin-bottom:16px">感谢观看</h2>
-        <div style="height:1px;background:rgba(255,255,255,.2);width:80px;margin:0 auto 24px"></div>
-        <p class="dim" style="font-size:18px;margin-bottom:32px">欢迎提问与交流</p>
-        <div style="padding:16px 24px;border-radius:var(--radius);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);display:inline-block">
-          <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:6px">项目地址</div>
-          <a href="https://github.com/Nagato-YUKI/dual-cert-system" style="font-size:16px;color:rgba(255,255,255,.9);font-weight:500">github.com/Nagato-YUKI/dual-cert-system</a>
+  <!-- SLIDE 10: Q&A -->
+  <div class="slide slide-dark" data-title="Q&A">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1">
+      <div style="font-size:80px;font-weight:900;opacity:.15;margin-bottom:16px">Q&A</div>
+      <h2 style="font-size:48px;font-weight:900;margin-bottom:8px">感谢观看</h2>
+      <div class="divider" style="margin:16px auto 24px"></div>
+      <p style="font-size:20px;color:rgba(255,255,255,.6);margin-bottom:40px">欢迎提问与交流</p>
+      <div style="padding:20px 32px;border-radius:var(--radius);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);text-align:center">
+        <div style="font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px">项目地址</div>
+        <a href="https://github.com/Nagato-YUKI/dual-cert-system" style="font-size:18px;color:rgba(255,255,255,.9);font-weight:600">github.com/Nagato-YUKI/dual-cert-system</a>
+      </div>
+      <div style="margin-top:40px;display:flex;gap:32px;align-items:center">
+        <div style="text-align:center">
+          <div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:4px">作者</div>
+          <div style="font-size:15px;font-weight:600;color:rgba(255,255,255,.7)">陈政廷</div>
+        </div>
+        <div style="width:1px;height:24px;background:rgba(255,255,255,.12)"></div>
+        <div style="text-align:center">
+          <div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:4px">技术栈</div>
+          <div style="font-size:15px;font-weight:600;color:rgba(255,255,255,.7)">Flask + PostgreSQL + AI</div>
         </div>
       </div>
     </div>
@@ -695,85 +767,70 @@ h4,.h4{font-size:20px;line-height:1.35;font-weight:600;margin:0 0 8px;color:var(
 
 </div>
 
-<!-- Progress bar -->
-<div class="progress-bar"><span></span></div>
-
-<!-- Footer -->
-<div class="deck-footer">
+<div class="progress"><span></span></div>
+<div class="footer">
   <span>学生校内双证管理系统</span>
-  <span class="slide-number" data-current="1" data-total="10"></span>
+  <span class="page-num" data-cur="1" data-total="10"></span>
 </div>
 
 <script>
-(function () {
+(function(){
   'use strict';
+  const deck=document.querySelector('.deck');
+  if(!deck)return;
+  const slides=Array.from(deck.querySelectorAll('.slide'));
+  const total=slides.length;
+  let idx=0,scrollLock=false;
 
-  function ready(fn){ if(document.readyState!=='loading')fn(); else document.addEventListener('DOMContentLoaded',fn);}
+  const bar=document.querySelector('.progress span');
+  const pageNum=document.querySelector('.page-num');
 
-  ready(function () {
-    const deck = document.querySelector('.deck');
-    if (!deck) return;
-    const slides = Array.from(deck.querySelectorAll('.slide'));
-    if (!slides.length) return;
-
-    let idx = 0;
-    const total = slides.length;
-
-    /* progress bar */
-    let bar = document.querySelector('.progress-bar');
-    if (!bar) {
-      bar = document.createElement('div');
-      bar.className = 'progress-bar';
-      bar.innerHTML = '<span></span>';
-      document.body.appendChild(bar);
-    }
-    const barFill = bar.querySelector('span');
-
-    /* navigation */
-    function go(n){
-      n = Math.max(0, Math.min(total-1, n));
-      slides.forEach((s,i) => {
-        s.classList.toggle('is-active', i===n);
-        s.classList.toggle('is-prev', i<n);
-      });
-      idx = n;
-      barFill.style.width = ((n+1)/total*100)+'%';
-      const numEl = document.querySelector('.slide-number');
-      if (numEl) { numEl.setAttribute('data-current', n+1); numEl.setAttribute('data-total', total); }
-
-      // hash
-      const hashTarget = '#/'+(n+1);
-      if (location.hash !== hashTarget) {
-        history.replaceState(null,'', hashTarget);
-      }
-    }
-
-    function fullscreen(){
-      const el=document.documentElement;
-      if (!document.fullscreenElement) el.requestFullscreen&&el.requestFullscreen();
-      else document.exitFullscreen&&document.exitFullscreen();
-    }
-
-    document.addEventListener('keydown', function (e) {
-      if (e.metaKey||e.ctrlKey||e.altKey) return;
-      switch (e.key) {
-        case 'ArrowRight': case ' ': case 'PageDown': case 'Enter': go(idx+1); e.preventDefault(); break;
-        case 'ArrowLeft': case 'PageUp': case 'Backspace': go(idx-1); e.preventDefault(); break;
-        case 'Home': go(0); break;
-        case 'End': go(total-1); break;
-        case 'f': case 'F': fullscreen(); break;
-      }
+  function go(n){
+    n=Math.max(0,Math.min(total-1,n));
+    slides.forEach((s,i)=>{
+      s.classList.toggle('is-active',i===n);
     });
+    idx=n;
+    if(bar)bar.style.width=((n+1)/total*100)+'%';
+    if(pageNum){pageNum.setAttribute('data-cur',n+1);pageNum.textContent=(n+1)+' / '+total}
+    const h='#/'+(n+1);
+    if(location.hash!==h)history.replaceState(null,'',h);
+  }
 
-    // hash deep-link
-    function fromHash(){
-      const m = /^#\/(\d+)/.exec(location.hash||'');
-      if (m) go(Math.max(0, parseInt(m[1],10)-1));
+  function fullscreen(){
+    if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
+    else document.exitFullscreen&&document.exitFullscreen();
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey)return;
+    switch(e.key){
+      case'ArrowRight':case' ':case'PageDown':case'Enter':go(idx+1);e.preventDefault();break;
+      case'ArrowLeft':case'PageUp':case'Backspace':go(idx-1);e.preventDefault();break;
+      case'Home':go(0);break;
+      case'End':go(total-1);break;
+      case'f':case'F':fullscreen();break;
     }
-    window.addEventListener('hashchange', fromHash);
-    fromHash();
-    go(idx);
   });
+
+  // Mouse wheel navigation
+  document.addEventListener('wheel',function(e){
+    if(scrollLock)return;
+    scrollLock=true;
+    if(e.deltaY>0)go(idx+1);
+    else if(e.deltaY<0)go(idx-1);
+    e.preventDefault();
+    setTimeout(()=>{scrollLock=false},600);
+  },{passive:false});
+
+  // Hash deep-link
+  function fromHash(){
+    const m=/^#\/(\d+)/.exec(location.hash||'');
+    if(m)go(Math.max(0,parseInt(m[1],10)-1));
+  }
+  window.addEventListener('hashchange',fromHash);
+  fromHash();
+  go(idx);
 })();
 </script>
 </body>
