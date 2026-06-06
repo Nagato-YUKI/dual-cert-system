@@ -308,7 +308,7 @@ def _build_cert_reply(cert: dict, message: str) -> str:
 @api_bp.route("/chat", methods=["POST"])
 @jwt_required()
 def chat():
-    """AI chatbot endpoint: answer student questions based on knowledge base."""
+    """AI chatbot endpoint: answer student questions based on knowledge base + LLM."""
     data = request.get_json(silent=True) or {}
     message = data.get("message", "").strip()
     if not message:
@@ -327,7 +327,12 @@ def chat():
     if general_answer:
         return jsonify({"reply": general_answer})
 
-    # 3. Fallback reply
+    # 3. Try LLM API if configured
+    llm_reply = _call_llm_chat(message, kb)
+    if llm_reply:
+        return jsonify({"reply": llm_reply})
+
+    # 4. Fallback reply
     cert_names = "、".join(c["name"] for c in kb.get("certificates", []))
     return jsonify(
         {
@@ -338,6 +343,67 @@ def chat():
             )
         }
     )
+
+
+def _call_llm_chat(message: str, kb: dict) -> str | None:
+    """Call LLM API for chatbot, using knowledge base as context."""
+    api_key = os.environ.get("CHAT_API_KEY")
+    if not api_key:
+        return None
+
+    api_base = os.environ.get("CHAT_API_BASE", "https://open.bigmodel.cn/api/paas/v4")
+    model = os.environ.get("CHAT_MODEL", "glm-4-flash")
+
+    # Build system prompt from knowledge base
+    cert_summaries = []
+    for cert in kb.get("certificates", []):
+        cert_summaries.append(
+            f"- {cert['name']}（{cert['category']}）：{cert.get('description', '')}"
+        )
+    qa_summaries = []
+    for item in kb.get("general_qa", []):
+        qa_summaries.append(f"Q: {item['question']}\nA: {item['answer']}")
+
+    system_prompt = (
+        "你是「双证助手」，一个专业的证书考试咨询机器人。"
+        "你的职责是回答学生关于证书考试的问题，包括报名条件、考试时间、费用、科目、通过标准等。\n\n"
+        "以下是你可以参考的证书信息：\n"
+        + "\n".join(cert_summaries)
+        + "\n\n常见问答：\n"
+        + "\n".join(qa_summaries)
+        + "\n\n请注意：\n"
+        "1. 只回答与证书考试相关的问题\n"
+        "2. 如果不确定，建议学生咨询学校教务处\n"
+        "3. 回答要简洁明了，使用中文"
+    )
+
+    try:
+        import requests as http_req
+
+        resp = http_req.post(
+            f"{api_base}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": message},
+                ],
+                "max_tokens": 500,
+                "temperature": 0.7,
+            },
+            timeout=15,
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            return data["choices"][0]["message"]["content"]
+    except Exception:
+        pass
+
+    return None
 
 
 # ---------------------------------------------------------------------------
