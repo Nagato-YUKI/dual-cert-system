@@ -25,6 +25,9 @@ from app.services.import_service import (
     import_exam_results,
     import_students,
 )
+from app.services.ai_review import ai_review_registration
+from app.services.sms_service import notify_registration_status
+from app.models.review_log import ReviewLog
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -241,6 +244,163 @@ def delete_exam(exam_id: int):
 
 
 # ---------------------------------------------------------------------------
+# Reviews (merged from review.py to avoid blueprint conflict)
+# ---------------------------------------------------------------------------
+
+@admin_bp.route("/reviews", methods=["GET"])
+@admin_required
+def list_reviews():
+    """List registrations pending or under review."""
+    status = request.args.get("status", "")
+    review_status = request.args.get("review_status")
+
+    query = db.select(Registration)
+    if status:
+        query = query.filter_by(status=status)
+    if review_status:
+        query = query.filter_by(review_status=review_status)
+
+    items = db.session.execute(query).scalars().all()
+    return jsonify([_registration_to_dict(i) for i in items])
+
+
+@admin_bp.route("/reviews/<int:reg_id>/ai", methods=["POST"])
+@admin_required
+@log_operation(action="ai_review", target_type="registration", get_target_id=lambda reg_id, **kw: reg_id)
+def trigger_ai_review(reg_id: int):
+    """Trigger AI review for a single registration."""
+    reg = db.session.execute(
+        db.select(Registration).filter_by(id=reg_id)
+    ).scalar_one_or_none()
+    if not reg:
+        return jsonify({"msg": "Registration not found"}), 404
+
+    import json
+    result = ai_review_registration(reg)
+
+    reg.ai_review_result = json.dumps(result, ensure_ascii=False)
+    reg.ai_review_score = result["score"]
+
+    if result["score"] >= 80 and result["result"] == "approved":
+        reg.review_status = "ai_reviewed"
+        reg.status = "approved"
+    else:
+        reg.review_status = "ai_reviewed"
+
+    log = ReviewLog(
+        registration_id=reg.id,
+        review_type="ai_review",
+        result=result["result"],
+        comment=result["reason"],
+        score=result["score"],
+    )
+    db.session.add(log)
+    db.session.commit()
+
+    return jsonify({"msg": "AI review completed", "result": result})
+
+
+@admin_bp.route("/reviews/batch-ai", methods=["POST"])
+@admin_required
+@log_operation(action="batch_ai_review", target_type="registration")
+def batch_ai_review():
+    """Trigger AI review for multiple registrations."""
+    data = request.get_json(silent=True) or {}
+    reg_ids = data.get("ids", [])
+    if not reg_ids:
+        return jsonify({"msg": "No registration IDs provided"}), 400
+
+    import json
+    results = []
+    for reg_id in reg_ids:
+        reg = db.session.execute(
+            db.select(Registration).filter_by(id=reg_id)
+        ).scalar_one_or_none()
+        if not reg:
+            results.append({"id": reg_id, "msg": "Not found"})
+            continue
+
+        result = ai_review_registration(reg)
+        reg.ai_review_result = json.dumps(result, ensure_ascii=False)
+        reg.ai_review_score = result["score"]
+
+        if result["score"] >= 80 and result["result"] == "approved":
+            reg.review_status = "ai_reviewed"
+            reg.status = "approved"
+        else:
+            reg.review_status = "ai_reviewed"
+
+        log = ReviewLog(
+            registration_id=reg.id,
+            review_type="ai_review",
+            result=result["result"],
+            comment=result["reason"],
+            score=result["score"],
+        )
+        db.session.add(log)
+        results.append({"id": reg_id, "msg": "Reviewed", "result": result})
+
+    db.session.commit()
+    return jsonify({"results": results})
+
+
+@admin_bp.route("/reviews/<int:reg_id>", methods=["PUT"])
+@admin_required
+@log_operation(action="human_review", target_type="registration", get_target_id=lambda reg_id, **kw: reg_id)
+def human_review(reg_id: int):
+    """Human review a registration."""
+    from flask_jwt_extended import get_jwt_identity
+    data = request.get_json(silent=True) or {}
+    action = data.get("action")
+    comment = data.get("comment", "")
+
+    if action not in ("approved", "rejected", "need_more_info"):
+        return jsonify({"msg": "Invalid action"}), 400
+
+    reg = db.session.execute(
+        db.select(Registration).filter_by(id=reg_id)
+    ).scalar_one_or_none()
+    if not reg:
+        return jsonify({"msg": "Registration not found"}), 404
+
+    reviewer_id = int(get_jwt_identity())
+
+    if action == "approved":
+        reg.status = "approved"
+        reg.review_status = "approved"
+    elif action == "rejected":
+        reg.status = "rejected"
+        reg.review_status = "rejected"
+    else:
+        reg.review_status = "need_more_info"
+
+    reg.human_review_comment = comment
+    reg.reviewed_by = reviewer_id
+    reg.reviewed_at = db.func.current_timestamp()
+
+    log = ReviewLog(
+        registration_id=reg.id,
+        reviewer_id=reviewer_id,
+        review_type="human_review",
+        result=action,
+        comment=comment,
+    )
+    db.session.add(log)
+    db.session.commit()
+
+    student_phone = reg.student.phone if reg.student else None
+    if student_phone:
+        notify_registration_status(
+            phone=student_phone,
+            exam_name=reg.exam.exam_name if reg.exam else "未知考试",
+            status="已通过" if action == "approved" else "未通过" if action == "rejected" else "需补充材料",
+            review_comment=comment,
+        )
+
+    return jsonify({"msg": f"Registration {action}"})
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -255,6 +415,25 @@ def _cert_type_to_dict(cert: CertType) -> dict:
         "is_recommended": cert.is_recommended,
         "status": cert.status,
         "created_at": cert.created_at.isoformat() if cert.created_at else None,
+    }
+
+
+def _registration_to_dict(reg: Registration) -> dict:
+    return {
+        "id": reg.id,
+        "student_id": reg.student_id,
+        "student_name": reg.student.name if reg.student else None,
+        "student_no": reg.student.student_no if reg.student else None,
+        "class_name": reg.student.class_.name if reg.student and reg.student.class_ else None,
+        "exam_id": reg.exam_id,
+        "exam_name": reg.exam.exam_name if reg.exam else None,
+        "status": reg.status,
+        "submit_time": reg.submit_time.isoformat() if reg.submit_time else None,
+        "review_status": reg.review_status,
+        "ai_review_score": float(reg.ai_review_score) if reg.ai_review_score else None,
+        "ai_review_result": reg.ai_review_result,
+        "human_review_comment": reg.human_review_comment,
+        "reviewed_at": reg.reviewed_at.isoformat() if reg.reviewed_at else None,
     }
 
 
@@ -546,7 +725,7 @@ def bigscreen_data():
     six_months_ago = datetime.now() - timedelta(days=180)
     monthly_trend = db.session.execute(
         db.select(
-            func.date_trunc('month', Registration.submit_time).label('month'),
+            func.to_char(Registration.submit_time, 'YYYY-MM').label('month'),
             func.count(Registration.id)
         )
         .where(Registration.submit_time >= six_months_ago)
@@ -564,6 +743,7 @@ def bigscreen_data():
     ).all()
 
     # Class distribution
+    from app.models.class_ import ClassModel
     class_distribution = db.session.execute(
         db.select(Student.class_id, db.func.count(Student.id))
         .group_by(Student.class_id)
@@ -572,7 +752,7 @@ def bigscreen_data():
     class_counts = []
     for cid, count in class_distribution:
         class_obj = db.session.execute(
-            db.select(Student.class_).filter_by(id=cid)
+            db.select(ClassModel).filter_by(id=cid)
         ).scalar_one_or_none() if cid else None
         class_names.append(class_obj.name if class_obj else "未分类")
         class_counts.append(count)
@@ -589,7 +769,7 @@ def bigscreen_data():
             {"category": c, "count": n} for c, n in cert_category_counts
         ],
         "monthly_trend": [
-            {"month": m.strftime('%Y-%m') if hasattr(m, 'strftime') else str(m)[:7], "count": c} for m, c in monthly_trend
+            {"month": str(m), "count": c} for m, c in monthly_trend
         ],
         "top_exams": [
             {"exam_name": n, "count": c} for n, c in top_exams

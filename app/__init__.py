@@ -58,7 +58,8 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(admin_bp, url_prefix="/admin")
     app.register_blueprint(student_bp, url_prefix="/student")
-    app.register_blueprint(review_bp, url_prefix="/admin")
+    # review_bp routes merged into admin_bp to avoid conflicts
+    # app.register_blueprint(review_bp, url_prefix="/admin")
     app.register_blueprint(api_bp, url_prefix="/api")
 
     # Template routes
