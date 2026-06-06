@@ -64,8 +64,6 @@
 
 {% block extra_js %}
 <script>
-let regCounts = {};
-
 document.addEventListener('DOMContentLoaded', async () => {
   const authed = await checkAuth();
   if (!authed) return;
@@ -76,21 +74,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadExams() {
   try {
-    const data = await apiRequest('/student/exams');
-    await fetchRegistrationCounts();
+    const data = await apiRequest('/student/exams/data');
     renderExamTable(data);
   } catch (error) {
     showAlert(error.message || '加载考试列表失败', 'danger');
-  }
-}
-
-async function fetchRegistrationCounts() {
-  try {
-    const data = await apiRequest('/student/exams');
-    regCounts = {};
-    // 这里无法直接获取已报名人数，需要后端支持；暂时留空结构
-  } catch {
-    // ignore
   }
 }
 
@@ -111,7 +98,10 @@ function renderExamTable(data) {
       <td>${item.max_capacity || '-'}</td>
       <td>${getStatusBadge(item.status)}</td>
       <td>
-        <button class="btn btn-sm btn-primary" onclick="registerExam(${item.id})">报名</button>
+        ${item.registered
+          ? '<button class="btn btn-sm btn-secondary" disabled>已报名</button>'
+          : `<button class="btn btn-sm btn-primary" onclick="registerExam(${item.id})">报名</button>`
+        }
       </td>
     </tr>
   `).join('');
@@ -121,9 +111,15 @@ async function registerExam(id) {
   try {
     await apiRequest(`/student/exams/${id}/register`, { method: 'POST' });
     showAlert('报名成功', 'success');
+    loadExams();
     loadMyRegistrations();
   } catch (error) {
-    showAlert(error.message || '报名失败', 'danger');
+    if (error.status === 409) {
+      showAlert('您已报名该考试', 'warning');
+      loadExams();
+    } else {
+      showAlert(error.message || '报名失败', 'danger');
+    }
   }
 }
 

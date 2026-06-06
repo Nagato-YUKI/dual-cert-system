@@ -1,6 +1,9 @@
 """Admin routes module."""
 
+import json
 import os
+import threading
+import uuid
 
 from flask import Blueprint, jsonify, request, send_file
 
@@ -30,6 +33,9 @@ from app.services.sms_service import notify_registration_status
 from app.models.review_log import ReviewLog
 
 admin_bp = Blueprint("admin", __name__)
+
+# AI 审核任务状态存储 {task_id: {"status": "pending"|"running"|"completed"|"failed", "result": ...}}
+_ai_review_tasks: dict = {}
 
 
 # ---------------------------------------------------------------------------
@@ -162,7 +168,7 @@ def update_cert_rules(cert_id: int):
 # Exam CRUD
 # ---------------------------------------------------------------------------
 
-@admin_bp.route("/exams", methods=["GET"])
+@admin_bp.route("/exams/data", methods=["GET"])
 @admin_required
 def list_exams():
     """List exams with optional filters."""
@@ -247,7 +253,7 @@ def delete_exam(exam_id: int):
 # Reviews (merged from review.py to avoid blueprint conflict)
 # ---------------------------------------------------------------------------
 
-@admin_bp.route("/reviews", methods=["GET"])
+@admin_bp.route("/reviews/data", methods=["GET"])
 @admin_required
 def list_reviews():
     """List registrations pending or under review."""
@@ -268,80 +274,151 @@ def list_reviews():
 @admin_required
 @log_operation(action="ai_review", target_type="registration", get_target_id=lambda reg_id, **kw: reg_id)
 def trigger_ai_review(reg_id: int):
-    """Trigger AI review for a single registration."""
+    """Trigger AI review for a single registration (async via background thread)."""
     reg = db.session.execute(
         db.select(Registration).filter_by(id=reg_id)
     ).scalar_one_or_none()
     if not reg:
         return jsonify({"msg": "Registration not found"}), 404
 
-    import json
-    result = ai_review_registration(reg)
+    task_id = str(uuid.uuid4())
+    _ai_review_tasks[task_id] = {"status": "pending", "result": None}
 
-    reg.ai_review_result = json.dumps(result, ensure_ascii=False)
-    reg.ai_review_score = result["score"]
+    def _run_single_review():
+        """在后台线程中执行单条 AI 审核。"""
+        from app import create_app
 
-    if result["score"] >= 80 and result["result"] == "approved":
-        reg.review_status = "ai_reviewed"
-        reg.status = "approved"
-    else:
-        reg.review_status = "ai_reviewed"
+        app = create_app()
+        with app.app_context():
+            _ai_review_tasks[task_id]["status"] = "running"
+            try:
+                reg_obj = db.session.execute(
+                    db.select(Registration).filter_by(id=reg_id)
+                ).scalar_one_or_none()
+                if not reg_obj:
+                    _ai_review_tasks[task_id] = {
+                        "status": "failed",
+                        "result": {"msg": "Registration not found"},
+                    }
+                    return
 
-    log = ReviewLog(
-        registration_id=reg.id,
-        review_type="ai_review",
-        result=result["result"],
-        comment=result["reason"],
-        score=result["score"],
-    )
-    db.session.add(log)
-    db.session.commit()
+                result = ai_review_registration(reg_obj)
+                reg_obj.ai_review_result = json.dumps(result, ensure_ascii=False)
+                reg_obj.ai_review_score = result["score"]
 
-    return jsonify({"msg": "AI review completed", "result": result})
+                if result["score"] >= 80 and result["result"] == "approved":
+                    reg_obj.review_status = "ai_reviewed"
+                    reg_obj.status = "approved"
+                else:
+                    reg_obj.review_status = "ai_reviewed"
+
+                log = ReviewLog(
+                    registration_id=reg_obj.id,
+                    review_type="ai_review",
+                    result=result["result"],
+                    comment=result["reason"],
+                    score=result["score"],
+                )
+                db.session.add(log)
+                db.session.commit()
+
+                _ai_review_tasks[task_id] = {
+                    "status": "completed",
+                    "result": result,
+                }
+            except Exception as exc:
+                _ai_review_tasks[task_id] = {
+                    "status": "failed",
+                    "result": {"msg": str(exc)},
+                }
+
+    thread = threading.Thread(target=_run_single_review, daemon=True)
+    thread.start()
+
+    return jsonify({"msg": "AI review started", "task_id": task_id}), 202
 
 
 @admin_bp.route("/reviews/batch-ai", methods=["POST"])
 @admin_required
 @log_operation(action="batch_ai_review", target_type="registration")
 def batch_ai_review():
-    """Trigger AI review for multiple registrations."""
+    """Trigger AI review for multiple registrations (async via background thread)."""
     data = request.get_json(silent=True) or {}
     reg_ids = data.get("ids", [])
     if not reg_ids:
         return jsonify({"msg": "No registration IDs provided"}), 400
 
-    import json
-    results = []
-    for reg_id in reg_ids:
-        reg = db.session.execute(
-            db.select(Registration).filter_by(id=reg_id)
-        ).scalar_one_or_none()
-        if not reg:
-            results.append({"id": reg_id, "msg": "Not found"})
-            continue
+    task_id = str(uuid.uuid4())
+    _ai_review_tasks[task_id] = {"status": "pending", "result": None}
 
-        result = ai_review_registration(reg)
-        reg.ai_review_result = json.dumps(result, ensure_ascii=False)
-        reg.ai_review_score = result["score"]
+    def _run_batch_review():
+        """在后台线程中执行批量 AI 审核。"""
+        from app import create_app
 
-        if result["score"] >= 80 and result["result"] == "approved":
-            reg.review_status = "ai_reviewed"
-            reg.status = "approved"
-        else:
-            reg.review_status = "ai_reviewed"
+        app = create_app()
+        with app.app_context():
+            _ai_review_tasks[task_id]["status"] = "running"
+            results = []
+            try:
+                for reg_id in reg_ids:
+                    reg_obj = db.session.execute(
+                        db.select(Registration).filter_by(id=reg_id)
+                    ).scalar_one_or_none()
+                    if not reg_obj:
+                        results.append({"id": reg_id, "msg": "Not found"})
+                        continue
 
-        log = ReviewLog(
-            registration_id=reg.id,
-            review_type="ai_review",
-            result=result["result"],
-            comment=result["reason"],
-            score=result["score"],
-        )
-        db.session.add(log)
-        results.append({"id": reg_id, "msg": "Reviewed", "result": result})
+                    result = ai_review_registration(reg_obj)
+                    reg_obj.ai_review_result = json.dumps(result, ensure_ascii=False)
+                    reg_obj.ai_review_score = result["score"]
 
-    db.session.commit()
-    return jsonify({"results": results})
+                    if result["score"] >= 80 and result["result"] == "approved":
+                        reg_obj.review_status = "ai_reviewed"
+                        reg_obj.status = "approved"
+                    else:
+                        reg_obj.review_status = "ai_reviewed"
+
+                    log = ReviewLog(
+                        registration_id=reg_obj.id,
+                        review_type="ai_review",
+                        result=result["result"],
+                        comment=result["reason"],
+                        score=result["score"],
+                    )
+                    db.session.add(log)
+                    results.append({"id": reg_id, "msg": "Reviewed", "result": result})
+
+                db.session.commit()
+                _ai_review_tasks[task_id] = {
+                    "status": "completed",
+                    "result": {"results": results},
+                }
+            except Exception as exc:
+                db.session.rollback()
+                _ai_review_tasks[task_id] = {
+                    "status": "failed",
+                    "result": {"msg": str(exc), "partial_results": results},
+                }
+
+    thread = threading.Thread(target=_run_batch_review, daemon=True)
+    thread.start()
+
+    return jsonify({"msg": "Batch AI review started", "task_id": task_id}), 202
+
+
+@admin_bp.route("/reviews/ai-status/<task_id>", methods=["GET"])
+@admin_required
+def ai_review_status(task_id: str):
+    """查询 AI 审核任务状态，供前端轮询。"""
+    task = _ai_review_tasks.get(task_id)
+    if not task:
+        return jsonify({"msg": "Task not found"}), 404
+
+    return jsonify({
+        "task_id": task_id,
+        "status": task["status"],
+        "result": task["result"],
+    })
 
 
 @admin_bp.route("/reviews/<int:reg_id>", methods=["PUT"])

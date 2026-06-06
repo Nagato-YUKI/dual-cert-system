@@ -135,12 +135,12 @@
       document.getElementById('stat-cert-types').textContent = certTypes.length || 0;
 
       // Fetch exams
-      const exams = await apiRequest('/admin/exams');
+      const exams = await apiRequest('/admin/exams/data');
       document.getElementById('stat-exams').textContent = exams.length || 0;
 
       // Fetch reviews (registrations) - use admin prefix
-      const reviews = await apiRequest('/admin/reviews?status=pending');
-      const allRegs = await apiRequest('/admin/reviews');
+      const reviews = await apiRequest('/admin/reviews/data?status=pending');
+      const allRegs = await apiRequest('/admin/reviews/data');
       document.getElementById('stat-registrations').textContent = (allRegs && allRegs.length) || 0;
 
       // Calculate pass rate from approved vs total
@@ -287,17 +287,6 @@
     return dateStr.substring(0, 10);
   }
 
-  function getStatusBadge(status) {
-    const map = {
-      'upcoming': '<span class="badge badge-pending">即将开始</span>',
-      'ongoing': '<span class="badge" style="background: var(--primary-light); color: var(--primary);">进行中</span>',
-      'finished': '<span class="badge" style="background: #F3F4F6; color: #6B7280;">已结束</span>',
-      'pending': '<span class="badge badge-pending">待审核</span>',
-      'approved': '<span class="badge badge-approved">已通过</span>',
-      'rejected': '<span class="badge badge-rejected">已拒绝</span>',
-      'ai_reviewed': '<span class="badge" style="background: #DBEAFE; color: #1E40AF;">AI已审</span>',
-    };
-    return map[status] || `<span class="badge" style="background: #F3F4F6; color: #6B7280;">${escapeHtml(status)}</span>`;
-  }
+
 </script>
 {% endblock %}

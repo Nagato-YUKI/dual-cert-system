@@ -6,146 +6,183 @@
   <title>数据大屏 - 证书管理系统</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
       background: #0a0e27;
       color: #fff;
       font-family: 'Microsoft YaHei', sans-serif;
+    }
+    .bigscreen-wrapper {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
     .bigscreen-header {
       text-align: center;
-      padding: 20px 0;
+      padding: 1.2vh 0;
       background: linear-gradient(90deg, transparent, rgba(0,123,255,0.2), transparent);
       border-bottom: 1px solid rgba(0,123,255,0.3);
+      flex-shrink: 0;
+      position: relative;
     }
     .bigscreen-header h1 {
-      font-size: 2.5rem;
+      font-size: clamp(1.2rem, 2.5vh, 2.5rem);
       font-weight: bold;
       letter-spacing: 4px;
       margin: 0;
       text-shadow: 0 0 20px rgba(0,123,255,0.5);
     }
+    .bigscreen-header .subtitle {
+      font-size: clamp(0.7rem, 1.2vh, 1rem);
+      color: #8b9dc3;
+      margin-top: 2px;
+    }
+    .fullscreen-btn {
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      z-index: 1000;
+    }
+    .back-btn {
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      transform: translateY(-50%);
+      z-index: 1000;
+    }
+    .bigscreen-body {
+      flex: 1;
+      padding: 1.2vh 1.5vw;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2vh;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .stat-row {
+      display: flex;
+      gap: 1vw;
+      flex-shrink: 0;
+    }
     .stat-card {
+      flex: 1;
       background: rgba(0,123,255,0.1);
       border: 1px solid rgba(0,123,255,0.3);
       border-radius: 8px;
-      padding: 20px;
+      padding: 1.2vh 0;
       text-align: center;
     }
     .stat-value {
-      font-size: 3rem;
+      font-size: clamp(1.5rem, 3.5vh, 3rem);
       font-weight: bold;
       color: #00d4ff;
       text-shadow: 0 0 10px rgba(0,212,255,0.5);
     }
     .stat-label {
-      font-size: 1rem;
+      font-size: clamp(0.7rem, 1.2vh, 1rem);
       color: #8b9dc3;
-      margin-top: 8px;
+      margin-top: 4px;
+    }
+    .charts-row {
+      display: flex;
+      gap: 1vw;
+      flex: 1;
+      min-height: 0;
     }
     .chart-container {
       background: rgba(0,123,255,0.05);
       border: 1px solid rgba(0,123,255,0.2);
       border-radius: 8px;
-      padding: 15px;
-      height: 100%;
+      padding: 1vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chart-container h5 {
+      text-align: center;
+      margin-bottom: 0.5vh;
+      font-size: clamp(0.75rem, 1.3vh, 1rem);
+      color: #8b9dc3;
+      flex-shrink: 0;
     }
     .chart-box {
-      height: 300px;
+      flex: 1;
+      min-height: 0;
     }
-    .fullscreen-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-    }
-    .logout-btn {
-      position: fixed;
-      top: 20px;
-      right: 90px;
-      z-index: 1000;
-    }
+    .chart-col-6 { flex: 1; }
+    .chart-col-8 { flex: 2; }
+    .chart-col-4 { flex: 1; }
+    .chart-col-12 { flex: 1; }
   </style>
 </head>
 <body>
-  <button class="btn btn-outline-danger btn-sm logout-btn" onclick="logout()">
-    退出登录
-  </button>
-  <button class="btn btn-outline-light btn-sm fullscreen-btn" onclick="toggleFullscreen()">
-    全屏
-  </button>
+  <div class="bigscreen-wrapper">
+    <div class="bigscreen-header">
+      <h1>学生校内双证管理数据大屏</h1>
+      <p class="subtitle">实时数据监控中心</p>
+      <button class="btn btn-outline-warning btn-sm back-btn" onclick="goBack()">
+        退出大屏
+      </button>
+      <button class="btn btn-outline-light btn-sm fullscreen-btn" onclick="toggleFullscreen()">
+        全屏
+      </button>
+    </div>
 
-  <div class="bigscreen-header">
-    <h1>学生校内双证管理数据大屏</h1>
-    <p class="text-muted mt-2">实时数据监控中心</p>
-  </div>
-
-  <div class="container-fluid py-4">
-    <!-- Stat Cards Row -->
-    <div class="row g-4 mb-4">
-      <div class="col-md-3">
+    <div class="bigscreen-body">
+      <!-- Stat Cards Row -->
+      <div class="stat-row">
         <div class="stat-card">
           <div class="stat-value" id="total-certs">0</div>
           <div class="stat-label">证书类型总数</div>
         </div>
-      </div>
-      <div class="col-md-3">
         <div class="stat-card">
           <div class="stat-value" id="total-exams">0</div>
           <div class="stat-label">考试场次总数</div>
         </div>
-      </div>
-      <div class="col-md-3">
         <div class="stat-card">
           <div class="stat-value" id="total-students">0</div>
           <div class="stat-label">学生总数</div>
         </div>
-      </div>
-      <div class="col-md-3">
         <div class="stat-card">
           <div class="stat-value" id="total-registrations">0</div>
           <div class="stat-label">报名总人次</div>
         </div>
       </div>
-    </div>
 
-    <!-- Charts Row 1 -->
-    <div class="row g-4 mb-4">
-      <div class="col-lg-6">
-        <div class="chart-container">
-          <h5 class="text-center mb-3">报名状态分布</h5>
+      <!-- Charts Row 1 -->
+      <div class="charts-row">
+        <div class="chart-container chart-col-6">
+          <h5>报名状态分布</h5>
           <div id="regStatusChart" class="chart-box"></div>
         </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="chart-container">
-          <h5 class="text-center mb-3">证书分类分布</h5>
+        <div class="chart-container chart-col-6">
+          <h5>证书分类分布</h5>
           <div id="certCategoryChart" class="chart-box"></div>
         </div>
       </div>
-    </div>
 
-    <!-- Charts Row 2 -->
-    <div class="row g-4 mb-4">
-      <div class="col-lg-8">
-        <div class="chart-container">
-          <h5 class="text-center mb-3">近6个月报名趋势</h5>
+      <!-- Charts Row 2 -->
+      <div class="charts-row">
+        <div class="chart-container chart-col-8">
+          <h5>近6个月报名趋势</h5>
           <div id="monthlyTrendChart" class="chart-box"></div>
         </div>
-      </div>
-      <div class="col-lg-4">
-        <div class="chart-container">
-          <h5 class="text-center mb-3">热门考试TOP5</h5>
+        <div class="chart-container chart-col-4">
+          <h5>热门考试TOP5</h5>
           <div id="topExamsChart" class="chart-box"></div>
         </div>
       </div>
-    </div>
 
-    <!-- Charts Row 3 -->
-    <div class="row g-4">
-      <div class="col-12">
-        <div class="chart-container">
-          <h5 class="text-center mb-3">班级学生分布</h5>
+      <!-- Charts Row 3 -->
+      <div class="charts-row">
+        <div class="chart-container chart-col-12">
+          <h5>班级学生分布</h5>
           <div id="classDistributionChart" class="chart-box"></div>
         </div>
       </div>
@@ -155,11 +192,32 @@
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
   <script>
+    // 状态中文映射
+    const STATUS_ZH = {
+      'approved': '已通过',
+      'rejected': '已拒绝',
+      'pending': '待审核',
+      'ai_reviewed': 'AI已审',
+      'need_more_info': '需补充',
+      'upcoming': '即将开始',
+      'ongoing': '进行中',
+      'completed': '已结束',
+      'cancelled': '已取消',
+      'finished': '已结束',
+      'active': '启用',
+      'inactive': '停用',
+      'passed': '已通过',
+      'failed': '未通过',
+      'expired': '已过期',
+      'reviewed': '已审核',
+      'revoked': '已撤销',
+      'obtained': '已获取',
+    };
+
     document.addEventListener('DOMContentLoaded', async () => {
       const authed = await checkAuth();
       if (!authed) return;
       await loadBigScreenData();
-      // Auto refresh every 30 seconds
       setInterval(loadBigScreenData, 30000);
     });
 
@@ -167,13 +225,11 @@
       try {
         const data = await apiRequest('/admin/bigscreen/data');
 
-        // Update stat cards
         document.getElementById('total-certs').textContent = data.total_certs || 0;
         document.getElementById('total-exams').textContent = data.total_exams || 0;
         document.getElementById('total-students').textContent = data.total_students || 0;
         document.getElementById('total-registrations').textContent = data.total_registrations || 0;
 
-        // Render charts
         renderRegStatusChart(data.reg_status_distribution);
         renderCertCategoryChart(data.cert_category_distribution);
         renderMonthlyTrendChart(data.monthly_trend);
@@ -191,8 +247,8 @@
         series: [{
           type: 'pie',
           radius: ['40%', '70%'],
-          data: data.map(item => ({ value: item.count, name: item.status })),
-          label: { color: '#fff' },
+          data: data.map(item => ({ value: item.count, name: STATUS_ZH[item.status] || item.status })),
+          label: { color: '#fff', fontSize: 12 },
           itemStyle: { borderRadius: 5, borderColor: '#0a0e27', borderWidth: 2 }
         }]
       };
@@ -208,7 +264,7 @@
           type: 'pie',
           radius: '70%',
           data: data.map(item => ({ value: item.count, name: item.category })),
-          label: { color: '#fff' },
+          label: { color: '#fff', fontSize: 12 },
           itemStyle: { borderRadius: 5, borderColor: '#0a0e27', borderWidth: 2 }
         }]
       };
@@ -220,10 +276,11 @@
       const chart = echarts.init(document.getElementById('monthlyTrendChart'));
       const option = {
         tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '4%', bottom: '8%', top: '8%', containLabel: true },
         xAxis: {
           type: 'category',
           data: data.map(item => item.month),
-          axisLabel: { color: '#8b9dc3' },
+          axisLabel: { color: '#8b9dc3', fontSize: 10 },
           axisLine: { lineStyle: { color: '#333' } }
         },
         yAxis: {
@@ -252,6 +309,7 @@
       const chart = echarts.init(document.getElementById('topExamsChart'));
       const option = {
         tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '8%', bottom: '3%', top: '3%', containLabel: true },
         xAxis: {
           type: 'value',
           axisLabel: { color: '#8b9dc3' },
@@ -281,10 +339,11 @@
       const chart = echarts.init(document.getElementById('classDistributionChart'));
       const option = {
         tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '4%', bottom: '8%', top: '8%', containLabel: true },
         xAxis: {
           type: 'category',
           data: data.names,
-          axisLabel: { color: '#8b9dc3', rotate: 30 },
+          axisLabel: { color: '#8b9dc3', rotate: 30, fontSize: 10 },
           axisLine: { lineStyle: { color: '#333' } }
         },
         yAxis: {
@@ -315,6 +374,13 @@
       } else {
         document.exitFullscreen();
       }
+    }
+
+    function goBack() {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      }
+      window.location.href = '/admin';
     }
   </script>
 </body>

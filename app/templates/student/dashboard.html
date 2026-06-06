@@ -236,18 +236,6 @@
     return dateStr.substring(0, 10);
   }
 
-  function getStatusBadge(status) {
-    const map = {
-      'upcoming': '<span class="badge bg-info">即将开始</span>',
-      'ongoing': '<span class="badge bg-primary">进行中</span>',
-      'finished': '<span class="badge bg-secondary">已结束</span>',
-      'pending': '<span class="badge bg-warning">待审核</span>',
-      'approved': '<span class="badge bg-success">已通过</span>',
-      'rejected': '<span class="badge bg-danger">已拒绝</span>',
-      'ai_reviewed': '<span class="badge bg-info">AI已审</span>',
-      'obtained': '<span class="badge bg-success">已获取</span>',
-    };
-    return map[status] || `<span class="badge bg-secondary">${escapeHtml(status)}</span>`;
-  }
+
 </script>
 {% endblock %}

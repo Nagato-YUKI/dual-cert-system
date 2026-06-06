@@ -29,7 +29,7 @@ def admin_required(fn):
             db.select(User).filter_by(id=user_id)
         ).scalar_one_or_none()
         if not user or user.role != "admin":
-            return jsonify({"msg": "Admin access required"}), 403
+            return jsonify({"msg": "需要管理员权限"}), 403
         return fn(*args, **kwargs)
 
     return wrapper
@@ -46,7 +46,7 @@ def student_required(fn):
             db.select(Student).filter_by(id=user_id)
         ).scalar_one_or_none()
         if not student:
-            return jsonify({"msg": "Student access required"}), 403
+            return jsonify({"msg": "需要学生权限"}), 403
         return fn(*args, **kwargs)
 
     return wrapper
@@ -60,14 +60,14 @@ def admin_login():
     password = data.get("password")
 
     if not username or not password:
-        return jsonify({"msg": "Username and password are required"}), 400
+        return jsonify({"msg": "请输入用户名和密码"}), 400
 
     user = db.session.execute(
         db.select(User).filter_by(username=username)
     ).scalar_one_or_none()
 
     if not user or not check_password_hash(user.password_hash, password):
-        return jsonify({"msg": "Invalid username or password"}), 401
+        return jsonify({"msg": "用户名或密码错误"}), 401
 
     access_token = create_access_token(
         identity=str(user.id)
@@ -88,19 +88,19 @@ def student_login():
     password = data.get("password")
 
     if not student_no or not password:
-        return jsonify({"msg": "Student number and password are required"}), 400
+        return jsonify({"msg": "请输入学号和密码"}), 400
 
     student = db.session.execute(
         db.select(Student).filter_by(student_no=student_no)
     ).scalar_one_or_none()
 
     if not student:
-        return jsonify({"msg": "Student not found"}), 401
+        return jsonify({"msg": "该学号不存在"}), 401
 
     # Use last 6 digits of id_card as default password
     expected = (student.id_card or "")[-6:] if student.id_card else ""
     if password != expected:
-        return jsonify({"msg": "Invalid password"}), 401
+        return jsonify({"msg": "密码错误，请输入身份证后6位"}), 401
 
     access_token = create_access_token(
         identity=str(student.id)

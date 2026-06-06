@@ -74,15 +74,32 @@ def get_cert_type(cert_id: int):
 # Exams
 # ---------------------------------------------------------------------------
 
-@student_bp.route("/exams", methods=["GET"])
+@student_bp.route("/exams/data", methods=["GET"])
 def list_exams():
-    """List upcoming/ongoing exams."""
+    """List upcoming/ongoing exams with registration status for current student."""
     cert_type_id = request.args.get("cert_type_id", type=int)
     query = db.select(Exam).filter(Exam.status.in_(["upcoming", "ongoing"]))
     if cert_type_id:
         query = query.filter_by(cert_type_id=cert_type_id)
     items = db.session.execute(query).scalars().all()
-    return jsonify([_exam_to_dict(i) for i in items])
+
+    # Get current student's registered exam ids
+    registered_exam_ids = set()
+    try:
+        from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
+        verify_jwt_in_request()
+        user_id = int(get_jwt_identity())
+        my_registrations = db.session.execute(
+            db.select(Registration.exam_id).filter_by(student_id=user_id)
+        ).scalars().all()
+        registered_exam_ids = set(my_registrations)
+    except Exception:
+        pass
+
+    return jsonify([
+        {**_exam_to_dict(i), "registered": i.id in registered_exam_ids}
+        for i in items
+    ])
 
 
 @student_bp.route("/exams/<int:exam_id>/register", methods=["POST"])

@@ -13,12 +13,15 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 class Config:
     """Base configuration class."""
 
-    # Security keys (must be set via environment variables)
-    SECRET_KEY = os.environ.get("SECRET_KEY")
-    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
+    # Security keys
+    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
+    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "dev-jwt-secret-key-change-in-production")
 
-    # Database - must be set via environment variable
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    # Database - default to SQLite if not configured
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DATABASE_URL",
+        f"sqlite:///{os.path.join(BASE_DIR, 'data', 'dual_cert.db')}",
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # File uploads

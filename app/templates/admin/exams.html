@@ -165,7 +165,7 @@ async function loadCertTypes() {
 
 async function loadExams() {
   try {
-    const data = await apiRequest('/admin/exams');
+    const data = await apiRequest('/admin/exams/data');
     renderTable(data);
   } catch (error) {
     showAlert(error.message || '加载考试列表失败', 'danger');
@@ -206,7 +206,7 @@ function openCreateModal() {
 
 async function openEditModal(id) {
   try {
-    const data = await apiRequest(`/admin/exams?id=${id}`);
+    const data = await apiRequest(`/admin/exams/data?id=${id}`);
     const item = Array.isArray(data) ? data.find(e => e.id === id) : data;
     if (!item) {
       showAlert('未找到该考试', 'warning');

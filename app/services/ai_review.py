@@ -2,6 +2,7 @@
 
 import json
 import os
+import random
 from typing import Any
 
 import requests
@@ -47,25 +48,20 @@ def ai_review_registration(registration: Any) -> dict:
 }}
 """
 
-    response_text = _call_llm_api(prompt)
+    response_text = _call_llm_api(prompt, registration)
     return _parse_response(response_text)
 
 
-def _call_llm_api(prompt: str) -> str:
+def _call_llm_api(prompt: str, registration: Any = None) -> str:
     """Call LLM API with the given prompt."""
     api_key = os.environ.get("AI_API_KEY")
     api_base = os.environ.get("AI_API_BASE", "https://api.openai.com/v1")
     model = os.environ.get("AI_MODEL", "gpt-3.5-turbo")
 
     if not api_key:
-        # Fallback: return a mock response for development
+        # Fallback: return a differentiated mock response for development
         return json.dumps(
-            {
-                "result": "approved",
-                "score": 85,
-                "reason": "AI API key not configured, returning default approval for development.",
-                "issues": [],
-            },
+            _generate_mock_review(registration),
             ensure_ascii=False,
         )
 
@@ -128,4 +124,59 @@ def _parse_response(text: str) -> dict:
         "score": float(result.get("score", 50)),
         "reason": result.get("reason", ""),
         "issues": result.get("issues", []),
+    }
+
+
+def _generate_mock_review(registration: Any) -> dict:
+    """根据报名信息生成差异化的模拟审核结果。"""
+    materials = registration.materials_path or ""
+    has_materials = bool(materials and materials.strip())
+
+    # 有材料的通过概率高，无材料的拒绝/需补充概率高
+    if has_materials:
+        results = [
+            ("approved", random.randint(78, 95)),
+            ("approved", random.randint(70, 85)),
+            ("need_more_info", random.randint(50, 65)),
+        ]
+        weights = [0.6, 0.25, 0.15]
+    else:
+        results = [
+            ("need_more_info", random.randint(40, 60)),
+            ("rejected", random.randint(20, 45)),
+            ("approved", random.randint(65, 80)),
+        ]
+        weights = [0.5, 0.3, 0.2]
+
+    result, score = random.choices(results, weights=weights, k=1)[0]
+
+    reasons = {
+        "approved": [
+            "报名材料齐全，符合报名条件，建议通过审核。",
+            "提交的证明材料完整，资格条件满足要求。",
+            "材料审核通过，建议批准报名。",
+        ],
+        "rejected": [
+            "报名材料不符合要求，缺少必要的证明文件，建议拒绝。",
+            "资格条件不满足报名要求，建议拒绝。",
+            "提交的材料存在信息不一致，无法通过审核。",
+        ],
+        "need_more_info": [
+            "报名材料不完整，请补充相关证明文件后重新提交。",
+            "部分信息需要进一步核实，请补充材料。",
+            "缺少关键证明材料，请补充后重新审核。",
+        ],
+    }
+
+    suggestions = (
+        "建议仔细核对报名材料，确保信息准确完整。"
+        if result != "approved"
+        else ""
+    )
+
+    return {
+        "result": result,
+        "score": score,
+        "reason": random.choice(reasons[result]),
+        "issues": [suggestions] if suggestions else [],
     }

@@ -7,24 +7,22 @@
 
 <ul class="nav nav-tabs mb-4" id="categoryTab" role="tablist">
   <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="tab-all" data-bs-toggle="tab" data-bs-target="#pane-all" type="button" role="tab" onclick="loadCerts('')">全部</button>
+    <button class="nav-link active" id="tab-all" type="button" role="tab" onclick="switchTab(this, '')">全部</button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="tab-renshe" data-bs-toggle="tab" data-bs-target="#pane-renshe" type="button" role="tab" onclick="loadCerts('人社')">人社</button>
+    <button class="nav-link" id="tab-renshe" type="button" role="tab" onclick="switchTab(this, '人社类')">人社类</button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="tab-zhuanye" data-bs-toggle="tab" data-bs-target="#pane-zhuanye" type="button" role="tab" onclick="loadCerts('专业')">专业</button>
+    <button class="nav-link" id="tab-zhuanye" type="button" role="tab" onclick="switchTab(this, '专业类')">专业类</button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="tab-xiaonei" data-bs-toggle="tab" data-bs-target="#pane-xiaonei" type="button" role="tab" onclick="loadCerts('校内引进')">校内引进</button>
+    <button class="nav-link" id="tab-xiaonei" type="button" role="tab" onclick="switchTab(this, '校内引进')">校内引进</button>
   </li>
 </ul>
 
-<div class="tab-content" id="categoryTabContent">
-  <div class="tab-pane fade show active" id="pane-all" role="tabpanel">
-    <div class="row" id="certCards"></div>
-    <div id="emptyState" class="text-center text-muted py-5" style="display: none;">暂无数据</div>
-  </div>
+<div id="certCardsContainer">
+  <div class="row" id="certCards"></div>
+  <div id="emptyState" class="text-center text-muted py-5" style="display: none;">暂无数据</div>
 </div>
 
 <!-- Detail Modal -->
@@ -56,6 +54,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   detailModalInstance = new bootstrap.Modal(document.getElementById('detailModal'));
   loadCerts('');
 });
+
+function switchTab(btn, category) {
+  document.querySelectorAll('#categoryTab .nav-link').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadCerts(category);
+}
 
 async function loadCerts(category) {
   try {
@@ -141,12 +145,6 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-function getStatusBadge(status) {
-  const map = {
-    'active': '<span class="badge bg-success">启用</span>',
-    'inactive': '<span class="badge bg-secondary">停用</span>',
-  };
-  return map[status] || `<span class="badge bg-secondary">${escapeHtml(status)}</span>`;
-}
+
 </script>
 {% endblock %}

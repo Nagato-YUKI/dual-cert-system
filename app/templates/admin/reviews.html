@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadReviews() {
   const status = document.getElementById('filterStatus').value;
-  const url = status ? `/admin/reviews?status=${status}` : '/admin/reviews';
+  const url = status ? `/admin/reviews/data?status=${status}` : '/admin/reviews/data';
   try {
     const data = await apiRequest(url);
     reviewData = data || [];
@@ -166,16 +166,27 @@ function toggleSelectAll() {
 
 async function singleAiReview(id) {
   try {
-    const result = await apiRequest(`/admin/reviews/${id}/ai`, { method: 'POST' });
-    showAlert('AI审核完成', 'success');
-    const body = document.getElementById('aiResultBody');
-    body.innerHTML = `
-      <p><strong>结果:</strong> ${result.result?.result || '-'}</p>
-      <p><strong>评分:</strong> ${result.result?.score != null ? result.result.score : '-'}</p>
-      <p><strong>原因:</strong> ${escapeHtml(result.result?.reason || '-')}</p>
-    `;
-    aiResultModalInstance.show();
-    loadReviews();
+    showAlert('AI审核已提交，请稍候...', 'info');
+    const resp = await apiRequest(`/admin/reviews/${id}/ai`, { method: 'POST' });
+    const taskId = resp.task_id;
+    if (!taskId) {
+      showAlert('AI审核返回异常', 'danger');
+      return;
+    }
+    const result = await pollAiReviewStatus(taskId);
+    if (result.status === 'completed') {
+      showAlert('AI审核完成', 'success');
+      const body = document.getElementById('aiResultBody');
+      body.innerHTML = `
+        <p><strong>结果:</strong> ${result.result?.result || '-'}</p>
+        <p><strong>评分:</strong> ${result.result?.score != null ? result.result.score : '-'}</p>
+        <p><strong>原因:</strong> ${escapeHtml(result.result?.reason || '-')}</p>
+      `;
+      aiResultModalInstance.show();
+      loadReviews();
+    } else {
+      showAlert('AI审核失败: ' + (result.result?.msg || '未知错误'), 'danger');
+    }
   } catch (error) {
     showAlert(error.message || 'AI审核失败', 'danger');
   }
@@ -190,15 +201,37 @@ async function batchAiReview() {
   }
 
   try {
-    const result = await apiRequest('/admin/reviews/batch-ai', {
+    showAlert('批量AI审核已提交，请稍候...', 'info');
+    const resp = await apiRequest('/admin/reviews/batch-ai', {
       method: 'POST',
       body: JSON.stringify({ ids })
     });
-    showAlert(`批量AI审核完成，共处理 ${result.results?.length || 0} 条`, 'success');
-    loadReviews();
+    const taskId = resp.task_id;
+    if (!taskId) {
+      showAlert('批量AI审核返回异常', 'danger');
+      return;
+    }
+    const result = await pollAiReviewStatus(taskId);
+    if (result.status === 'completed') {
+      showAlert(`批量AI审核完成，共处理 ${result.result?.results?.length || 0} 条`, 'success');
+      loadReviews();
+    } else {
+      showAlert('批量AI审核失败: ' + (result.result?.msg || '未知错误'), 'danger');
+    }
   } catch (error) {
     showAlert(error.message || '批量AI审核失败', 'danger');
   }
+}
+
+async function pollAiReviewStatus(taskId, interval = 2000, maxAttempts = 60) {
+  for (let i = 0; i < maxAttempts; i++) {
+    await new Promise(resolve => setTimeout(resolve, interval));
+    const status = await apiRequest(`/admin/reviews/ai-status/${taskId}`);
+    if (status.status === 'completed' || status.status === 'failed') {
+      return status;
+    }
+  }
+  return { status: 'failed', result: { msg: '审核超时，请稍后刷新页面查看结果' } };
 }
 
 function openHumanReviewModal(id) {
@@ -237,18 +270,6 @@ function formatDateTime(dateStr) {
   return dateStr.substring(0, 10);
 }
 
-function getStatusBadge(status) {
-  const map = {
-    'upcoming': '<span class="badge bg-info">即将开始</span>',
-    'ongoing': '<span class="badge bg-primary">进行中</span>',
-    'finished': '<span class="badge bg-secondary">已结束</span>',
-    'pending': '<span class="badge bg-warning">待审核</span>',
-    'approved': '<span class="badge bg-success">已通过</span>',
-    'rejected': '<span class="badge bg-danger">已拒绝</span>',
-    'ai_reviewed': '<span class="badge bg-info">AI已审</span>',
-    'need_more_info': '<span class="badge bg-secondary">需补充</span>',
-  };
-  return map[status] || `<span class="badge bg-secondary">${escapeHtml(status)}</span>`;
-}
+
 </script>
 {% endblock %}

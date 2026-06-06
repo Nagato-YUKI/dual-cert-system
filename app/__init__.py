@@ -48,7 +48,10 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     jwt.init_app(app)
     cors.init_app(app)
 
-    # Register blueprints
+    # Register blueprints - views_bp first to avoid route conflicts with API blueprints
+    from app.routes.views import views_bp
+    app.register_blueprint(views_bp)
+
     from app.routes.auth import auth_bp
     from app.routes.admin import admin_bp
     from app.routes.student import student_bp
@@ -61,10 +64,6 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     # review_bp routes merged into admin_bp to avoid conflicts
     # app.register_blueprint(review_bp, url_prefix="/admin")
     app.register_blueprint(api_bp, url_prefix="/api")
-
-    # Template routes
-    from app.routes.views import views_bp
-    app.register_blueprint(views_bp)
 
     # Create database tables and default data
     with app.app_context():

@@ -57,10 +57,15 @@ async function apiRequest(url, options = {}) {
   console.log('[apiRequest]', url, 'status:', response.status);
 
   if (response.status === 401) {
-    console.log('[apiRequest] 401 Unauthorized, clearing token');
-    removeToken();
-    window.location.href = '/login';
-    return Promise.reject(new Error('Unauthorized'));
+    const errorData = await response.json().catch(() => ({}));
+    const errorMsg = errorData.msg || 'Unauthorized';
+    // Only redirect to login for non-auth API calls
+    // Auth login endpoints should show error messages instead of redirecting
+    if (!url.startsWith('/auth/login') && !url.startsWith('/auth/student/login')) {
+      removeToken();
+      window.location.href = '/login';
+    }
+    throw new Error(errorMsg);
   }
 
   if (!response.ok) {
@@ -190,21 +195,30 @@ function formatDateTime(dateStr) {
  */
 function getStatusBadge(status) {
   const map = {
-    approved: 'success',
-    rejected: 'danger',
-    pending: 'warning',
-    ai_reviewed: 'info',
-    need_more_info: 'secondary',
-    upcoming: 'primary',
-    ongoing: 'info',
-    completed: 'success',
-    cancelled: 'secondary',
-    active: 'success',
-    inactive: 'secondary',
+    approved: { cls: 'success', label: '已通过' },
+    rejected: { cls: 'danger', label: '已拒绝' },
+    pending: { cls: 'warning', label: '待审核' },
+    ai_reviewed: { cls: 'info', label: 'AI已审' },
+    need_more_info: { cls: 'secondary', label: '需补充' },
+    upcoming: { cls: 'primary', label: '即将开始' },
+    ongoing: { cls: 'info', label: '进行中' },
+    completed: { cls: 'success', label: '已结束' },
+    cancelled: { cls: 'secondary', label: '已取消' },
+    finished: { cls: 'secondary', label: '已结束' },
+    active: { cls: 'success', label: '启用' },
+    inactive: { cls: 'secondary', label: '停用' },
+    obtained: { cls: 'success', label: '已获取' },
+    failed: { cls: 'danger', label: '未通过' },
+    passed: { cls: 'success', label: '已通过' },
+    expired: { cls: 'secondary', label: '已过期' },
+    reviewed: { cls: 'info', label: '已审核' },
+    revoked: { cls: 'danger', label: '已撤销' },
   };
-  const cls = map[status] || 'secondary';
-  const label = status ? status.replace(/_/g, ' ').toUpperCase() : 'UNKNOWN';
-  return `<span class="badge bg-${cls}">${label}</span>`;
+  const entry = map[status];
+  if (entry) {
+    return `<span class="badge bg-${entry.cls}">${entry.label}</span>`;
+  }
+  return `<span class="badge bg-secondary">${status || '未知'}</span>`;
 }
 
 // Attach logout handler on DOM ready
