@@ -1,7 +1,6 @@
 """Authentication routes module."""
 
 from functools import wraps
-from urllib.parse import quote
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (
@@ -73,11 +72,15 @@ def admin_login():
     access_token = create_access_token(
         identity=str(user.id)
     )
+    avatar_url = (
+        f"https://api.dicebear.com/10.x/bottts/svg?seed={user.name}"
+    )
     return jsonify({
         "access_token": access_token,
         "role": "admin",
         "username": user.username,
         "name": user.name,
+        "avatar_url": avatar_url,
     })
 
 
@@ -107,15 +110,10 @@ def student_login():
         identity=str(student.id)
     )
 
-    # Auto-generate avatar URL using Pollinations AI if not set
+    # Auto-generate avatar URL using DiceBear API if not set
     if not student.avatar_url:
-        prompt = quote(
-            "professional avatar portrait of a Chinese student, "
-            "simple background, digital art style"
-        )
         student.avatar_url = (
-            f"https://image.pollinations.ai/prompt/{prompt}"
-            f"?width=128&height=128&seed={student.id}&nologo=true"
+            f"https://api.dicebear.com/10.x/lorelei/svg?seed={student.name}"
         )
         db.session.commit()
 
@@ -139,11 +137,15 @@ def get_me():
         db.select(User).filter_by(id=user_id)
     ).scalar_one_or_none()
     if user:
+        avatar_url = (
+            f"https://api.dicebear.com/10.x/bottts/svg?seed={user.name}"
+        )
         return jsonify({
             "id": user.id,
             "username": user.username,
             "role": user.role,
             "name": user.name,
+            "avatar_url": avatar_url,
         })
 
     # Try student

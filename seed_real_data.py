@@ -3,7 +3,6 @@
 import json
 import random
 from datetime import datetime, timedelta
-from urllib.parse import quote
 
 from werkzeug.security import generate_password_hash
 
@@ -79,14 +78,10 @@ for idx, student in enumerate(students):
     # Set id_card for login (password = last 6 digits of id_card)
     if not student.id_card:
         student.id_card = f"4401012000{student.student_no[-6:]}"
-    # Generate Pollinations AI avatar URL
-    prompt = quote(
-        "professional avatar portrait of a Chinese student, "
-        "simple background, digital art style"
-    )
+    # Generate DiceBear avatar URL
     student.avatar_url = (
-        f"https://image.pollinations.ai/prompt/{prompt}"
-        f"?width=128&height=128&seed={student.id}&nologo=true"
+        f"https://api.dicebear.com/10.x/lorelei/svg"
+        f"?seed={CHINESE_NAMES[idx % len(CHINESE_NAMES)]}"
     )
 db.session.commit()
 print(f"Updated {len(students)} student names, id_cards, and avatar URLs.")
