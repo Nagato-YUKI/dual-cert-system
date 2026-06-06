@@ -1,6 +1,7 @@
 """Authentication routes module."""
 
 from functools import wraps
+from urllib.parse import quote
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (
@@ -105,11 +106,25 @@ def student_login():
     access_token = create_access_token(
         identity=str(student.id)
     )
+
+    # Auto-generate avatar URL using Pollinations AI if not set
+    if not student.avatar_url:
+        prompt = quote(
+            "professional avatar portrait of a Chinese student, "
+            "simple background, digital art style"
+        )
+        student.avatar_url = (
+            f"https://image.pollinations.ai/prompt/{prompt}"
+            f"?width=128&height=128&seed={student.id}&nologo=true"
+        )
+        db.session.commit()
+
     return jsonify({
         "access_token": access_token,
         "role": "student",
         "student_no": student.student_no,
         "name": student.name,
+        "avatar_url": student.avatar_url,
     })
 
 
@@ -141,6 +156,7 @@ def get_me():
             "student_no": student.student_no,
             "name": student.name,
             "role": "student",
+            "avatar_url": student.avatar_url,
         })
 
     return jsonify({"msg": "User not found"}), 404

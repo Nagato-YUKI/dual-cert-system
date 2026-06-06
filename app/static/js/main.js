@@ -132,6 +132,8 @@ function updateNavbar(user) {
   const studentNavs = document.querySelectorAll('.student-nav');
   const userNameEl = document.getElementById('user-name');
   const logoutBtn = document.getElementById('logout-btn');
+  const avatarContainer = document.getElementById('avatar-container');
+  const avatarEl = document.getElementById('user-avatar');
 
   if (userNameEl) {
     userNameEl.textContent = user.name || user.username || user.student_no || 'User';
@@ -139,6 +141,25 @@ function updateNavbar(user) {
 
   if (logoutBtn) {
     logoutBtn.style.display = 'inline-block';
+  }
+
+  // Show avatar image if avatar_url is available
+  if (avatarContainer && avatarEl && user.avatar_url) {
+    avatarEl.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = user.avatar_url;
+    img.alt = 'avatar';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+    img.onerror = function() {
+      // Fallback to initial letter on image load error
+      avatarEl.innerHTML = (user.name || user.username || 'U').charAt(0).toUpperCase();
+      img.remove();
+    };
+    avatarEl.innerHTML = '';
+    avatarEl.appendChild(img);
+  } else if (avatarEl) {
+    const initial = (user.name || user.username || 'U').charAt(0).toUpperCase();
+    avatarEl.textContent = initial;
   }
 
   if (user.role === 'admin') {

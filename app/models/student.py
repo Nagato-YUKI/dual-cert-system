@@ -15,6 +15,7 @@ class Student(db.Model):
     phone = db.Column(db.String(20))
     email = db.Column(db.String(100))
     id_card = db.Column(db.String(18))
+    avatar_url = db.Column(db.String(500), nullable=True)
     status = db.Column(db.String(20), default="active")
     created_at = db.Column(
         db.DateTime,

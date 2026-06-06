@@ -3,6 +3,7 @@
 import json
 import random
 from datetime import datetime, timedelta
+from urllib.parse import quote
 
 from werkzeug.security import generate_password_hash
 
@@ -75,8 +76,17 @@ if not students:
 random.shuffle(CHINESE_NAMES)
 for idx, student in enumerate(students):
     student.name = CHINESE_NAMES[idx % len(CHINESE_NAMES)]
+    # Generate Pollinations AI avatar URL
+    prompt = quote(
+        "professional avatar portrait of a Chinese student, "
+        "simple background, digital art style"
+    )
+    student.avatar_url = (
+        f"https://image.pollinations.ai/prompt/{prompt}"
+        f"?width=128&height=128&seed={student.id}&nologo=true"
+    )
 db.session.commit()
-print(f"Updated {len(students)} student names with realistic Chinese names.")
+print(f"Updated {len(students)} student names with realistic Chinese names and avatar URLs.")
 
 # ============================================================
 # 4. 创建证书类型（人社类/专业类/校内引进）
