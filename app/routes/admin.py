@@ -541,13 +541,17 @@ def bigscreen_data():
     ).all()
 
     # Monthly registration trend (last 6 months)
-    from sqlalchemy import text
+    from sqlalchemy import func
+    from datetime import datetime, timedelta
+    six_months_ago = datetime.now() - timedelta(days=180)
     monthly_trend = db.session.execute(
-        text(
-            "SELECT strftime('%Y-%m', submit_time) as month, COUNT(id) "
-            "FROM registrations WHERE submit_time >= date('now', '-6 months') "
-            "GROUP BY month ORDER BY month"
+        db.select(
+            func.date_trunc('month', Registration.submit_time).label('month'),
+            func.count(Registration.id)
         )
+        .where(Registration.submit_time >= six_months_ago)
+        .group_by('month')
+        .order_by('month')
     ).all()
 
     # Top 5 exams by registration count
@@ -585,7 +589,7 @@ def bigscreen_data():
             {"category": c, "count": n} for c, n in cert_category_counts
         ],
         "monthly_trend": [
-            {"month": m, "count": c} for m, c in monthly_trend
+            {"month": m.strftime('%Y-%m') if hasattr(m, 'strftime') else str(m)[:7], "count": c} for m, c in monthly_trend
         ],
         "top_exams": [
             {"exam_name": n, "count": c} for n, c in top_exams

@@ -173,21 +173,28 @@ body {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 20px 16px;
   text-align: center;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.stat-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-md);
 }
 
 .stat-value {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 700;
   color: var(--primary);
   line-height: 1.2;
 }
 
 .stat-label {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-secondary);
-  margin-top: 4px;
+  margin-top: 6px;
+  font-weight: 500;
 }
 
 /* Login page */
