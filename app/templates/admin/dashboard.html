@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block title %}管理仪表盘 - 证书管理系统{% endblock %}
+
+{% block content %}
+<div class="dashboard-header fade-in">
+  <h1>管理仪表盘</h1>
+  <p class="text-muted">欢迎回来，<span id="admin-name">管理员</span></p>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-4 mb-4 fade-in">
+  <div class="col-md-3 col-sm-6">
+    <div class="card stat-card h-100">
+      <div class="card-body">
+        <div class="stat-label">证书总数</div>
+        <div class="stat-value" id="stat-cert-types">0</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card stat-card success h-100">
+      <div class="card-body">
+        <div class="stat-label">考试场次</div>
+        <div class="stat-value" id="stat-exams">0</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card stat-card warning h-100">
+      <div class="card-body">
+        <div class="stat-label">报名人数</div>
+        <div class="stat-value" id="stat-registrations">0</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card stat-card danger h-100">
+      <div class="card-body">
+        <div class="stat-label">通过率</div>
+        <div class="stat-value" id="stat-pass-rate">0%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4 fade-in">
+  <div class="col-lg-8">
+    <div class="card h-100">
+      <div class="card-header bg-white">
+        <h5 class="card-title mb-0">报名趋势</h5>
+      </div>
+      <div class="card-body">
+        <div id="registration-trend-chart" class="chart-container"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header bg-white">
+        <h5 class="card-title mb-0">证书分类分布</h5>
+      </div>
+      <div class="card-body">
+        <div id="cert-category-chart" class="chart-container"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Exams & Reviews -->
+<div class="row g-4 fade-in">
+  <div class="col-lg-6">
+    <div class="card table-card">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">最近考试</h5>
+        <a href="/admin/exams" class="btn btn-sm btn-outline-primary">查看全部</a>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>考试名称</th>
+                <th>日期</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="recent-exams-body">
+              <tr><td colspan="3" class="text-center text-muted">加载中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card table-card">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">待审核报名</h5>
+        <a href="/admin/reviews" class="btn btn-sm btn-outline-primary">查看全部</a>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>学生</th>
+                <th>考试</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="pending-reviews-body">
+              <tr><td colspan="3" class="text-center text-muted">加载中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const authed = await checkAuth();
+    if (!authed) return;
+
+    const user = getUserInfo();
+    if (user && user.name) {
+      document.getElementById('admin-name').textContent = user.name;
+    }
+
+    await loadDashboardData();
+  });
+
+  async function loadDashboardData() {
+    try {
+      // Fetch cert types
+      const certTypes = await apiRequest('/admin/cert-types');
+      document.getElementById('stat-cert-types').textContent = certTypes.length;
+
+      // Fetch exams
+      const exams = await apiRequest('/admin/exams');
+      document.getElementById('stat-exams').textContent = exams.length;
+
+      // Fetch reviews (registrations)
+      const reviews = await apiRequest('/admin/reviews?status=pending');
+      const allRegs = await apiRequest('/admin/reviews');
+      document.getElementById('stat-registrations').textContent = allRegs.length;
+
+      // Calculate pass rate from approved vs total
+      const approvedCount = allRegs.filter(r => r.status === 'approved').length;
+      const passRate = allRegs.length > 0 ? Math.round((approvedCount / allRegs.length) * 100) : 0;
+      document.getElementById('stat-pass-rate').textContent = passRate + '%';
+
+      // Render recent exams table
+      renderRecentExams(exams.slice(0, 5));
+
+      // Render pending reviews table
+      renderPendingReviews(reviews.slice(0, 5));
+
+      // Render charts
+      renderRegistrationTrendChart(allRegs);
+      renderCertCategoryChart(certTypes);
+    } catch (error) {
+      showAlert('加载仪表盘数据失败: ' + error.message, 'danger');
+    }
+  }
+
+  function renderRecentExams(exams) {
+    const tbody = document.getElementById('recent-exams-body');
+    if (!exams || exams.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">暂无考试数据</td></tr>';
+      return;
+    }
+    tbody.innerHTML = exams.map(exam => `
+      <tr>
+        <td>${escapeHtml(exam.exam_name)}</td>
+        <td>${formatDate(exam.exam_date)}</td>
+        <td>${getStatusBadge(exam.status)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderPendingReviews(reviews) {
+    const tbody = document.getElementById('pending-reviews-body');
+    if (!reviews || reviews.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">暂无待审核报名</td></tr>';
+      return;
+    }
+    tbody.innerHTML = reviews.map(review => `
+      <tr>
+        <td>${escapeHtml(review.student_name || review.student_no || '-')}</td>
+        <td>${escapeHtml(review.exam_name || '-')}</td>
+        <td>${getStatusBadge(review.review_status)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderRegistrationTrendChart(registrations) {
+    const chartDom = document.getElementById('registration-trend-chart');
+    if (!chartDom) return;
+    const chart = echarts.init(chartDom);
+
+    // Group by month
+    const counts = {};
+    registrations.forEach(reg => {
+      const date = reg.submit_time ? reg.submit_time.substring(0, 7) : '未知';
+      counts[date] = (counts[date] || 0) + 1;
+    });
+
+    const sortedKeys = Object.keys(counts).sort();
+    const data = sortedKeys.map(k => counts[k]);
+
+    const option = {
+      tooltip: { trigger: 'axis' },
+      xAxis: {
+        type: 'category',
+        data: sortedKeys,
+        axisLabel: { rotate: 30 }
+      },
+      yAxis: { type: 'value', minInterval: 1 },
+      series: [{
+        data: data,
+        type: 'line',
+        smooth: true,
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(13,110,253,0.4)' },
+            { offset: 1, color: 'rgba(13,110,253,0.05)' }
+          ])
+        },
+        itemStyle: { color: '#0d6efd' }
+      }],
+      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true }
+    };
+
+    chart.setOption(option);
+    window.addEventListener('resize', () => chart.resize());
+  }
+
+  function renderCertCategoryChart(certTypes) {
+    const chartDom = document.getElementById('cert-category-chart');
+    if (!chartDom) return;
+    const chart = echarts.init(chartDom);
+
+    const counts = {};
+    certTypes.forEach(ct => {
+      const cat = ct.category || '未分类';
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+
+    const data = Object.keys(counts).map(k => ({ value: counts[k], name: k }));
+
+    const option = {
+      tooltip: { trigger: 'item' },
+      legend: { bottom: '0%', left: 'center' },
+      series: [{
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: { show: false },
+        emphasis: {
+          label: { show: true, fontSize: 16, fontWeight: 'bold' }
+        },
+        data: data
+      }]
+    };
+
+    chart.setOption(option);
+    window.addEventListener('resize', () => chart.resize());
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    return dateStr.substring(0, 10);
+  }
+
+  function getStatusBadge(status) {
+    const map = {
+      'upcoming': '<span class="badge bg-info">即将开始</span>',
+      'ongoing': '<span class="badge bg-primary">进行中</span>',
+      'finished': '<span class="badge bg-secondary">已结束</span>',
+      'pending': '<span class="badge bg-warning">待审核</span>',
+      'approved': '<span class="badge bg-success">已通过</span>',
+      'rejected': '<span class="badge bg-danger">已拒绝</span>',
+      'ai_reviewed': '<span class="badge bg-info">AI已审</span>',
+    };
+    return map[status] || `<span class="badge bg-secondary">${escapeHtml(status)}</span>`;
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,10 @@
+Flask
+Flask-SQLAlchemy
+Flask-JWT-Extended
+Flask-CORS
+openpyxl
+pandas
+python-dotenv
+waitress
+Werkzeug
+requests

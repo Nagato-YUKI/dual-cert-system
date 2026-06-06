@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}证书类型管理 - 证书管理系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>证书类型管理</h2>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#certModal" onclick="openCreateModal()">
+    新增证书类型
+  </button>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover" id="certTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>名称</th>
+            <th>分类</th>
+            <th>发证机构</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="certTableBody">
+          <tr id="emptyRow">
+            <td colspan="6" class="text-center text-muted">暂无数据</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="certModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">新增证书类型</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="certForm">
+          <input type="hidden" id="certId">
+          <div class="mb-3">
+            <label for="name" class="form-label">名称 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="category" class="form-label">分类 <span class="text-danger">*</span></label>
+            <select class="form-select" id="category" required>
+              <option value="">请选择分类</option>
+              <option value="人社">人社</option>
+              <option value="专业">专业</option>
+              <option value="校内引进">校内引进</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="issuingAuthority" class="form-label">发证机构</label>
+            <input type="text" class="form-control" id="issuingAuthority">
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">描述</label>
+            <textarea class="form-control" id="description" rows="3"></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="isRequired">
+                <label class="form-check-label" for="isRequired">是否必修</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="isRecommended">
+                <label class="form-check-label" for="isRecommended">是否推荐</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="status" class="form-label">状态</label>
+                <select class="form-select" id="status">
+                  <option value="active">启用</option>
+                  <option value="inactive">停用</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" onclick="saveCert()">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">确认删除</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>确定要删除该证书类型吗？此操作不可恢复。</p>
+        <input type="hidden" id="deleteCertId">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-danger" onclick="confirmDelete()">删除</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let certModalInstance = null;
+let deleteModalInstance = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const authed = await checkAuth();
+  if (!authed) return;
+
+  certModalInstance = new bootstrap.Modal(document.getElementById('certModal'));
+  deleteModalInstance = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+  loadCerts();
+});
+
+async function loadCerts() {
+  try {
+    const data = await apiRequest('/admin/cert-types');
+    renderTable(data);
+  } catch (error) {
+    showAlert(error.message || '加载证书类型失败', 'danger');
+  }
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('certTableBody');
+  if (!data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">暂无数据</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(item => `
+    <tr>
+      <td>${item.id}</td>
+      <td>${escapeHtml(item.name)}</td>
+      <td>${escapeHtml(item.category)}</td>
+      <td>${escapeHtml(item.issuing_authority || '-')}</td>
+      <td>${getStatusBadge(item.status)}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(${item.id})">编辑</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="openDeleteModal(${item.id})">删除</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openCreateModal() {
+  document.getElementById('modalTitle').textContent = '新增证书类型';
+  document.getElementById('certForm').reset();
+  document.getElementById('certId').value = '';
+}
+
+async function openEditModal(id) {
+  try {
+    const data = await apiRequest(`/admin/cert-types?id=${id}`);
+    const item = Array.isArray(data) ? data.find(c => c.id === id) : data;
+    if (!item) {
+      showAlert('未找到该证书类型', 'warning');
+      return;
+    }
+
+    document.getElementById('modalTitle').textContent = '编辑证书类型';
+    document.getElementById('certId').value = item.id;
+    document.getElementById('name').value = item.name || '';
+    document.getElementById('category').value = item.category || '';
+    document.getElementById('issuingAuthority').value = item.issuing_authority || '';
+    document.getElementById('description').value = item.description || '';
+    document.getElementById('isRequired').checked = item.is_required || false;
+    document.getElementById('isRecommended').checked = item.is_recommended || false;
+    document.getElementById('status').value = item.status || 'active';
+
+    certModalInstance.show();
+  } catch (error) {
+    showAlert(error.message || '加载详情失败', 'danger');
+  }
+}
+
+async function saveCert() {
+  const id = document.getElementById('certId').value;
+  const payload = {
+    name: document.getElementById('name').value.trim(),
+    category: document.getElementById('category').value,
+    issuing_authority: document.getElementById('issuingAuthority').value.trim(),
+    description: document.getElementById('description').value.trim(),
+    is_required: document.getElementById('isRequired').checked,
+    is_recommended: document.getElementById('isRecommended').checked,
+    status: document.getElementById('status').value,
+  };
+
+  if (!payload.name || !payload.category) {
+    showAlert('请填写必填项', 'warning');
+    return;
+  }
+
+  try {
+    if (id) {
+      await apiRequest(`/admin/cert-types/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      showAlert('更新成功', 'success');
+    } else {
+      await apiRequest('/admin/cert-types', { method: 'POST', body: JSON.stringify(payload) });
+      showAlert('创建成功', 'success');
+    }
+    certModalInstance.hide();
+    loadCerts();
+  } catch (error) {
+    showAlert(error.message || '保存失败', 'danger');
+  }
+}
+
+function openDeleteModal(id) {
+  document.getElementById('deleteCertId').value = id;
+  deleteModalInstance.show();
+}
+
+async function confirmDelete() {
+  const id = document.getElementById('deleteCertId').value;
+  try {
+    await apiRequest(`/admin/cert-types/${id}`, { method: 'DELETE' });
+    showAlert('删除成功', 'success');
+    deleteModalInstance.hide();
+    loadCerts();
+  } catch (error) {
+    showAlert(error.message || '删除失败', 'danger');
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function getStatusBadge(status) {
+  const map = {
+    'active': '<span class="badge bg-success">启用</span>',
+    'inactive': '<span class="badge bg-secondary">停用</span>',
+  };
+  return map[status] || `<span class="badge bg-secondary">${escapeHtml(status)}</span>`;
+}
+</script>
+{% endblock %}

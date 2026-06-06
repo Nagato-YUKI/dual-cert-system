@@ -1,0 +1,201 @@
+/* Custom styles for Certificate Management System */
+
+:root {
+  --primary-color: #0d6efd;
+  --secondary-color: #6c757d;
+  --success-color: #198754;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #0dcaf0;
+  --light-bg: #f8f9fa;
+  --dark-bg: #212529;
+}
+
+body {
+  background-color: var(--light-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* Navbar */
+.navbar-brand {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Cards */
+.card {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.stat-card {
+  border-left: 4px solid var(--primary-color);
+}
+
+.stat-card.success {
+  border-left-color: var(--success-color);
+}
+
+.stat-card.warning {
+  border-left-color: var(--warning-color);
+}
+
+.stat-card.danger {
+  border-left-color: var(--danger-color);
+}
+
+.stat-card .stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--dark-bg);
+}
+
+.stat-card .stat-label {
+  font-size: 0.875rem;
+  color: var(--secondary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Login page */
+.login-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding-top: 5rem;
+}
+
+.login-card {
+  border-radius: 1rem;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+}
+
+.login-card .card-header {
+  background-color: transparent;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.login-card .nav-tabs .nav-link {
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--secondary-color);
+  font-weight: 500;
+}
+
+.login-card .nav-tabs .nav-link.active {
+  border-bottom-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* Dashboard */
+.dashboard-header {
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-header h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.chart-container {
+  position: relative;
+  height: 350px;
+  width: 100%;
+}
+
+/* Tables */
+.table-card .card-body {
+  padding: 0;
+}
+
+.table-card .table {
+  margin-bottom: 0;
+}
+
+.table-card .table th {
+  background-color: var(--light-bg);
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Badges */
+.badge {
+  font-weight: 500;
+  padding: 0.5em 0.75em;
+}
+
+/* Buttons */
+.btn {
+  font-weight: 500;
+  border-radius: 0.5rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stat-card .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .chart-container {
+    height: 250px;
+  }
+
+  .login-container {
+    padding-top: 2rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Loading spinner overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Alert container */
+.alert-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1050;
+  max-width: 400px;
+}

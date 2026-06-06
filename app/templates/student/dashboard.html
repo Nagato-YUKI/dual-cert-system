@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}我的仪表盘 - 证书管理系统{% endblock %}
+
+{% block content %}
+<div class="dashboard-header fade-in">
+  <h1>我的仪表盘</h1>
+  <p class="text-muted">欢迎回来，<span id="student-name">同学</span></p>
+</div>
+
+<!-- Personal Info Card -->
+<div class="row g-4 mb-4 fade-in">
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header bg-white">
+        <h5 class="card-title mb-0">个人信息</h5>
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush" id="student-info-list">
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">姓名</span>
+            <span class="fw-medium" id="info-name">-</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">学号</span>
+            <span class="fw-medium" id="info-student-no">-</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">角色</span>
+            <span class="badge bg-primary">学生</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registration Overview -->
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header bg-white">
+        <h5 class="card-title mb-0">报名状态概览</h5>
+      </div>
+      <div class="card-body">
+        <div class="row text-center g-3" id="registration-stats">
+          <div class="col-6">
+            <div class="stat-value" id="reg-total">0</div>
+            <div class="stat-label">总报名</div>
+          </div>
+          <div class="col-6">
+            <div class="stat-value text-success" id="reg-approved">0</div>
+            <div class="stat-label">已通过</div>
+          </div>
+          <div class="col-6">
+            <div class="stat-value text-warning" id="reg-pending">0</div>
+            <div class="stat-label">审核中</div>
+          </div>
+          <div class="col-6">
+            <div class="stat-value text-danger" id="reg-rejected">0</div>
+            <div class="stat-label">未通过</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Certificates Count -->
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header bg-white">
+        <h5 class="card-title mb-0">证书获取</h5>
+      </div>
+      <div class="card-body d-flex flex-column justify-content-center align-items-center">
+        <div class="display-1 fw-bold text-success" id="cert-count">0</div>
+        <div class="text-muted mt-2">已获取证书数量</div>
+        <a href="/student/certificates" class="btn btn-outline-success mt-3">查看详情</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- My Registrations Table -->
+<div class="row g-4 mb-4 fade-in">
+  <div class="col-12">
+    <div class="card table-card">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">我的报名记录</h5>
+        <a href="/student/exams" class="btn btn-sm btn-outline-primary">去报名</a>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>考试名称</th>
+                <th>报名时间</th>
+                <th>报名状态</th>
+                <th>审核状态</th>
+              </tr>
+            </thead>
+            <tbody id="my-registrations-body">
+              <tr><td colspan="4" class="text-center text-muted">加载中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- My Certificates Table -->
+<div class="row g-4 fade-in">
+  <div class="col-12">
+    <div class="card table-card">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">我的证书记录</h5>
+        <a href="/student/certificates" class="btn btn-sm btn-outline-primary">查看全部</a>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>证书名称</th>
+                <th>证书编号</th>
+                <th>成绩</th>
+                <th>获取日期</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="my-certificates-body">
+              <tr><td colspan="5" class="text-center text-muted">加载中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const authed = await checkAuth();
+    if (!authed) return;
+
+    const user = getUserInfo();
+    if (user) {
+      if (user.name) {
+        document.getElementById('student-name').textContent = user.name;
+        document.getElementById('info-name').textContent = user.name;
+      }
+      if (user.student_no) {
+        document.getElementById('info-student-no').textContent = user.student_no;
+      }
+    }
+
+    await loadStudentDashboard();
+  });
+
+  async function loadStudentDashboard() {
+    try {
+      // Load registrations
+      const registrations = await apiRequest('/student/my-registrations');
+      renderRegistrations(registrations);
+      updateRegistrationStats(registrations);
+
+      // Load certificates
+      const certificates = await apiRequest('/student/my-certificates');
+      renderCertificates(certificates);
+      document.getElementById('cert-count').textContent = certificates.length;
+    } catch (error) {
+      showAlert('加载数据失败: ' + error.message, 'danger');
+    }
+  }
+
+  function renderRegistrations(registrations) {
+    const tbody = document.getElementById('my-registrations-body');
+    if (!registrations || registrations.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">暂无报名记录</td></tr>';
+      return;
+    }
+    tbody.innerHTML = registrations.map(reg => `
+      <tr>
+        <td>${escapeHtml(reg.exam_name || '-')}</td>
+        <td>${formatDateTime(reg.submit_time)}</td>
+        <td>${getStatusBadge(reg.status)}</td>
+        <td>${getStatusBadge(reg.review_status)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderCertificates(certificates) {
+    const tbody = document.getElementById('my-certificates-body');
+    if (!certificates || certificates.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">暂无证书记录</td></tr>';
+      return;
+    }
+    tbody.innerHTML = certificates.map(cert => `
+      <tr>
+        <td>${escapeHtml(cert.cert_type_name || '-')}</td>
+        <td>${escapeHtml(cert.certificate_no || '-')}</td>
+        <td>${cert.score != null ? cert.score : '-'}</td>
+        <td>${formatDate(cert.obtain_date)}</td>
+        <td>${getStatusBadge(cert.status)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function updateRegistrationStats(registrations) {
+    const total = registrations.length;
+    const approved = registrations.filter(r => r.status === 'approved').length;
+    const pending = registrations.filter(r => r.status === 'pending').length;
+    const rejected = registrations.filter(r => r.status === 'rejected').length;
+
+    document.getElementById('reg-total').textContent = total;
+    document.getElementById('reg-approved').textContent = approved;
+    document.getElementById('reg-pending').textContent = pending;
+    document.getElementById('reg-rejected').textContent = rejected;
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function formatDateTime(dateStr) {
+    if (!dateStr) return '-';
+    return dateStr.substring(0, 10);
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    return dateStr.substring(0, 10);
+  }
+
+  function getStatusBadge(status) {
+    const map = {
+      'upcoming': '<span class="badge bg-info">即将开始</span>',
+      'ongoing': '<span class="badge bg-primary">进行中</span>',
+      'finished': '<span class="badge bg-secondary">已结束</span>',
+      'pending': '<span class="badge bg-warning">待审核</span>',
+      'approved': '<span class="badge bg-success">已通过</span>',
+      'rejected': '<span class="badge bg-danger">已拒绝</span>',
+      'ai_reviewed': '<span class="badge bg-info">AI已审</span>',
+      'obtained': '<span class="badge bg-success">已获取</span>',
+    };
+    return map[status] || `<span class="badge bg-secondary">${escapeHtml(status)}</span>`;
+  }
+</script>
+{% endblock %}

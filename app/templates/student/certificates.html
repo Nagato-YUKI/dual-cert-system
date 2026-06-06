@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}证书浏览 - 证书管理系统{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">证书浏览</h2>
+
+<ul class="nav nav-tabs mb-4" id="categoryTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="tab-all" data-bs-toggle="tab" data-bs-target="#pane-all" type="button" role="tab" onclick="loadCerts('')">全部</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-renshe" data-bs-toggle="tab" data-bs-target="#pane-renshe" type="button" role="tab" onclick="loadCerts('人社')">人社</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-zhuanye" data-bs-toggle="tab" data-bs-target="#pane-zhuanye" type="button" role="tab" onclick="loadCerts('专业')">专业</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-xiaonei" data-bs-toggle="tab" data-bs-target="#pane-xiaonei" type="button" role="tab" onclick="loadCerts('校内引进')">校内引进</button>
+  </li>
+</ul>
+
+<div class="tab-content" id="categoryTabContent">
+  <div class="tab-pane fade show active" id="pane-all" role="tabpanel">
+    <div class="row" id="certCards"></div>
+    <div id="emptyState" class="text-center text-muted py-5" style="display: none;">暂无数据</div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailTitle">证书详情</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="detailBody">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let detailModalInstance = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const authed = await checkAuth();
+  if (!authed) return;
+
+  detailModalInstance = new bootstrap.Modal(document.getElementById('detailModal'));
+  loadCerts('');
+});
+
+async function loadCerts(category) {
+  try {
+    const url = category ? `/student/cert-types?category=${encodeURIComponent(category)}` : '/student/cert-types';
+    const data = await apiRequest(url);
+    renderCards(data);
+  } catch (error) {
+    showAlert(error.message || '加载证书列表失败', 'danger');
+  }
+}
+
+function renderCards(data) {
+  const container = document.getElementById('certCards');
+  const emptyState = document.getElementById('emptyState');
+
+  if (!data || data.length === 0) {
+    container.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+  container.innerHTML = data.map(item => `
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">${escapeHtml(item.name)}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">${escapeHtml(item.issuing_authority || '-')}</h6>
+          <p class="card-text">${escapeHtml(item.description || '暂无描述')}</p>
+          <div class="d-flex gap-2 mb-2">
+            ${item.is_required ? '<span class="badge bg-danger">必修</span>' : ''}
+            ${item.is_recommended ? '<span class="badge bg-success">推荐</span>' : ''}
+            <span class="badge bg-secondary">${escapeHtml(item.category)}</span>
+          </div>
+          <button class="btn btn-sm btn-outline-primary" onclick="showDetail(${item.id})">查看详情</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function showDetail(id) {
+  try {
+    const item = await apiRequest(`/student/cert-types/${id}`);
+    document.getElementById('detailTitle').textContent = item.name || '证书详情';
+
+    let ruleHtml = '';
+    if (item.rule) {
+      ruleHtml = `
+        <div class="card mt-3">
+          <div class="card-header">报名规则</div>
+          <div class="card-body">
+            ${item.rule.rule_content ? `<p><strong>规则内容:</strong> ${escapeHtml(item.rule.rule_content)}</p>` : ''}
+            ${item.rule.required_grades ? `<p><strong>要求年级:</strong> ${escapeHtml(item.rule.required_grades)}</p>` : ''}
+            ${item.rule.required_majors ? `<p><strong>要求专业:</strong> ${escapeHtml(item.rule.required_majors)}</p>` : ''}
+            ${item.rule.prerequisites ? `<p><strong>前置条件:</strong> ${escapeHtml(item.rule.prerequisites)}</p>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('detailBody').innerHTML = `
+      <p><strong>发证机构:</strong> ${escapeHtml(item.issuing_authority || '-')}</p>
+      <p><strong>分类:</strong> ${escapeHtml(item.category)}</p>
+      <p><strong>描述:</strong> ${escapeHtml(item.description || '-')}</p>
+      <p><strong>状态:</strong> ${getStatusBadge(item.status)}</p>
+      <p><strong>是否必修:</strong> ${item.is_required ? '是' : '否'}</p>
+      <p><strong>是否推荐:</strong> ${item.is_recommended ? '是' : '否'}</p>
+      ${ruleHtml}
+    `;
+
+    detailModalInstance.show();
+  } catch (error) {
+    showAlert(error.message || '加载详情失败', 'danger');
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function getStatusBadge(status) {
+  const map = {
+    'active': '<span class="badge bg-success">启用</span>',
+    'inactive': '<span class="badge bg-secondary">停用</span>',
+  };
+  return map[status] || `<span class="badge bg-secondary">${escapeHtml(status)}</span>`;
+}
+</script>
+{% endblock %}

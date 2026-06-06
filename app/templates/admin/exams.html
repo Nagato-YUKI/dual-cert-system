@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block title %}考试管理 - 证书管理系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>考试管理</h2>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#examModal" onclick="openCreateModal()">
+    新增考试
+  </button>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover" id="examTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>名称</th>
+            <th>证书类型</th>
+            <th>考试日期</th>
+            <th>报名起止</th>
+            <th>地点</th>
+            <th>容量</th>
+            <th>费用</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="examTableBody">
+          <tr id="emptyRow">
+            <td colspan="10" class="text-center text-muted">暂无数据</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="examModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">新增考试</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="examForm">
+          <input type="hidden" id="examId">
+          <div class="mb-3">
+            <label for="examName" class="form-label">考试名称 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="examName" required>
+          </div>
+          <div class="mb-3">
+            <label for="certTypeId" class="form-label">证书类型</label>
+            <select class="form-select" id="certTypeId">
+              <option value="">请选择证书类型</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="examDate" class="form-label">考试日期</label>
+              <input type="date" class="form-control" id="examDate">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="examLocation" class="form-label">考试地点</label>
+              <input type="text" class="form-control" id="examLocation">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="registrationStart" class="form-label">报名开始</label>
+              <input type="date" class="form-control" id="registrationStart">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="registrationEnd" class="form-label">报名结束</label>
+              <input type="date" class="form-control" id="registrationEnd">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="maxCapacity" class="form-label">最大容量</label>
+              <input type="number" class="form-control" id="maxCapacity" min="0">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="fee" class="form-label">费用</label>
+              <input type="number" class="form-control" id="fee" min="0" step="0.01">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="status" class="form-label">状态</label>
+            <select class="form-select" id="status">
+              <option value="upcoming">即将开始</option>
+              <option value="ongoing">进行中</option>
+              <option value="completed">已结束</option>
+              <option value="cancelled">已取消</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" onclick="saveExam()">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">确认删除</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>确定要删除该考试吗？此操作不可恢复。</p>
+        <input type="hidden" id="deleteExamId">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-danger" onclick="confirmDelete()">删除</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let examModalInstance = null;
+let deleteModalInstance = null;
+let certTypesMap = {};
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const authed = await checkAuth();
+  if (!authed) return;
+
+  examModalInstance = new bootstrap.Modal(document.getElementById('examModal'));
+  deleteModalInstance = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+  await loadCertTypes();
+  loadExams();
+});
+
+async function loadCertTypes() {
+  try {
+    const data = await apiRequest('/admin/cert-types');
+    const select = document.getElementById('certTypeId');
+    certTypesMap = {};
+    data.forEach(ct => {
+      certTypesMap[ct.id] = ct.name;
+      const option = document.createElement('option');
+      option.value = ct.id;
+      option.textContent = ct.name;
+      select.appendChild(option);
+    });
+  } catch (error) {
+    showAlert(error.message || '加载证书类型失败', 'danger');
+  }
+}
+
+async function loadExams() {
+  try {
+    const data = await apiRequest('/admin/exams');
+    renderTable(data);
+  } catch (error) {
+    showAlert(error.message || '加载考试列表失败', 'danger');
+  }
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('examTableBody');
+  if (!data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">暂无数据</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(item => `
+    <tr>
+      <td>${item.id}</td>
+      <td>${escapeHtml(item.exam_name)}</td>
+      <td>${escapeHtml(certTypesMap[item.cert_type_id] || '-')}</td>
+      <td>${formatDate(item.exam_date)}</td>
+      <td>${formatDate(item.registration_start)} ~ ${formatDate(item.registration_end)}</td>
+      <td>${escapeHtml(item.exam_location || '-')}</td>
+      <td>${item.max_capacity || '-'}</td>
+      <td>${item.fee != null ? item.fee.toFixed(2) : '-'}</td>
+      <td>${getStatusBadge(item.status)}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(${item.id})">编辑</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="openDeleteModal(${item.id})">删除</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openCreateModal() {
+  document.getElementById('modalTitle').textContent = '新增考试';
+  document.getElementById('examForm').reset();
+  document.getElementById('examId').value = '';
+}
+
+async function openEditModal(id) {
+  try {
+    const data = await apiRequest(`/admin/exams?id=${id}`);
+    const item = Array.isArray(data) ? data.find(e => e.id === id) : data;
+    if (!item) {
+      showAlert('未找到该考试', 'warning');
+      return;
+    }
+
+    document.getElementById('modalTitle').textContent = '编辑考试';
+    document.getElementById('examId').value = item.id;
+    document.getElementById('examName').value = item.exam_name || '';
+    document.getElementById('certTypeId').value = item.cert_type_id || '';
+    document.getElementById('examDate').value = item.exam_date ? item.exam_date.split('T')[0] : '';
+    document.getElementById('examLocation').value = item.exam_location || '';
+    document.getElementById('registrationStart').value = item.registration_start ? item.registration_start.split('T')[0] : '';
+    document.getElementById('registrationEnd').value = item.registration_end ? item.registration_end.split('T')[0] : '';
+    document.getElementById('maxCapacity').value = item.max_capacity || '';
+    document.getElementById('fee').value = item.fee != null ? item.fee : '';
+    document.getElementById('status').value = item.status || 'upcoming';
+
+    examModalInstance.show();
+  } catch (error) {
+    showAlert(error.message || '加载详情失败', 'danger');
+  }
+}
+
+async function saveExam() {
+  const id = document.getElementById('examId').value;
+  const payload = {
+    exam_name: document.getElementById('examName').value.trim(),
+    cert_type_id: document.getElementById('certTypeId').value ? parseInt(document.getElementById('certTypeId').value) : null,
+    exam_date: document.getElementById('examDate').value || null,
+    exam_location: document.getElementById('examLocation').value.trim(),
+    registration_start: document.getElementById('registrationStart').value || null,
+    registration_end: document.getElementById('registrationEnd').value || null,
+    max_capacity: document.getElementById('maxCapacity').value ? parseInt(document.getElementById('maxCapacity').value) : null,
+    fee: document.getElementById('fee').value ? parseFloat(document.getElementById('fee').value) : 0,
+    status: document.getElementById('status').value,
+  };
+
+  if (!payload.exam_name) {
+    showAlert('请填写考试名称', 'warning');
+    return;
+  }
+
+  try {
+    if (id) {
+      await apiRequest(`/admin/exams/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      showAlert('更新成功', 'success');
+    } else {
+      await apiRequest('/admin/exams', { method: 'POST', body: JSON.stringify(payload) });
+      showAlert('创建成功', 'success');
+    }
+    examModalInstance.hide();
+    loadExams();
+  } catch (error) {
+    showAlert(error.message || '保存失败', 'danger');
+  }
+}
+
+function openDeleteModal(id) {
+  document.getElementById('deleteExamId').value = id;
+  deleteModalInstance.show();
+}
+
+async function confirmDelete() {
+  const id = document.getElementById('deleteExamId').value;
+  try {
+    await apiRequest(`/admin/exams/${id}`, { method: 'DELETE' });
+    showAlert('删除成功', 'success');
+    deleteModalInstance.hide();
+    loadExams();
+  } catch (error) {
+    showAlert(error.message || '删除失败', 'danger');
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  return dateStr.substring(0, 10);
+}
+
+function getStatusBadge(status) {
+  const map = {
+    'upcoming': '<span class="badge bg-info">即将开始</span>',
+    'ongoing': '<span class="badge bg-primary">进行中</span>',
+    'completed': '<span class="badge bg-secondary">已结束</span>',
+    'cancelled': '<span class="badge bg-secondary">已取消</span>',
+  };
+  return map[status] || `<span class="badge bg-secondary">${escapeHtml(status)}</span>`;
+}
+</script>
+{% endblock %}

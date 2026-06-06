@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}考试报名 - 证书管理系统{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">考试报名</h2>
+
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">可报名考试</h5>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover" id="examTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>考试名称</th>
+            <th>考试日期</th>
+            <th>地点</th>
+            <th>费用</th>
+            <th>容量/已报名</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="examTableBody">
+          <tr id="emptyRow">
+            <td colspan="8" class="text-center text-muted">暂无数据</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">我的报名记录</h5>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover" id="registrationTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>考试名称</th>
+            <th>提交时间</th>
+            <th>报名状态</th>
+            <th>审核状态</th>
+            <th>AI评分</th>
+          </tr>
+        </thead>
+        <tbody id="registrationTableBody">
+          <tr id="regEmptyRow">
+            <td colspan="6" class="text-center text-muted">暂无数据</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let regCounts = {};
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const authed = await checkAuth();
+  if (!authed) return;
+
+  loadExams();
+  loadMyRegistrations();
+});
+
+async function loadExams() {
+  try {
+    const data = await apiRequest('/student/exams');
+    await fetchRegistrationCounts();
+    renderExamTable(data);
+  } catch (error) {
+    showAlert(error.message || '加载考试列表失败', 'danger');
+  }
+}
+
+async function fetchRegistrationCounts() {
+  try {
+    const data = await apiRequest('/student/exams');
+    regCounts = {};
+    // 这里无法直接获取已报名人数，需要后端支持；暂时留空结构
+  } catch {
+    // ignore
+  }
+}
+
+function renderExamTable(data) {
+  const tbody = document.getElementById('examTableBody');
+  if (!data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">暂无数据</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(item => `
+    <tr>
+      <td>${item.id}</td>
+      <td>${escapeHtml(item.exam_name)}</td>
+      <td>${formatDate(item.exam_date)}</td>
+      <td>${escapeHtml(item.exam_location || '-')}</td>
+      <td>${item.fee != null ? item.fee.toFixed(2) : '-'}</td>
+      <td>${item.max_capacity || '-'}</td>
+      <td>${getStatusBadge(item.status)}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="registerExam(${item.id})">报名</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function registerExam(id) {
+  try {
+    await apiRequest(`/student/exams/${id}/register`, { method: 'POST' });
+    showAlert('报名成功', 'success');
+    loadMyRegistrations();
+  } catch (error) {
+    showAlert(error.message || '报名失败', 'danger');
+  }
+}
+
+async function loadMyRegistrations() {
+  try {
+    const data = await apiRequest('/student/my-registrations');
+    renderRegistrationTable(data);
+  } catch (error) {
+    showAlert(error.message || '加载报名记录失败', 'danger');
+  }
+}
+
+function renderRegistrationTable(data) {
+  const tbody = document.getElementById('registrationTableBody');
+  if (!data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">暂无数据</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(item => `
+    <tr>
+      <td>${item.id}</td>
+      <td>${escapeHtml(item.exam_name || '-')}</td>
+      <td>${formatDateTime(item.submit_time)}</td>
+      <td>${getStatusBadge(item.status)}</td>
+      <td>${getStatusBadge(item.review_status)}</td>
+      <td>${item.ai_review_score != null ? item.ai_review_score : '-'}</td>
+    </tr>
+  `).join('');
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+</script>
+{% endblock %}

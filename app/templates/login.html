@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}登录 - 证书管理系统{% endblock %}
+
+{% block content %}
+<div class="login-container fade-in">
+  <div class="card login-card">
+    <div class="card-header text-center pt-4">
+      <h3 class="mb-0">证书管理系统</h3>
+      <p class="text-muted">请登录您的账户</p>
+    </div>
+    <div class="card-body px-4 pb-4">
+      <!-- Login Tabs -->
+      <ul class="nav nav-tabs nav-justified mb-4" id="loginTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin-login" type="button" role="tab">
+            管理员登录
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="student-tab" data-bs-toggle="tab" data-bs-target="#student-login" type="button" role="tab">
+            学生登录
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="loginTabContent">
+        <!-- Admin Login Form -->
+        <div class="tab-pane fade show active" id="admin-login" role="tabpanel">
+          <form id="admin-login-form">
+            <div class="mb-3">
+              <label for="admin-username" class="form-label">用户名</label>
+              <input type="text" class="form-control" id="admin-username" name="username" placeholder="请输入用户名" required>
+            </div>
+            <div class="mb-3">
+              <label for="admin-password" class="form-label">密码</label>
+              <input type="password" class="form-control" id="admin-password" name="password" placeholder="请输入密码" required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">登录</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Student Login Form -->
+        <div class="tab-pane fade" id="student-login" role="tabpanel">
+          <form id="student-login-form">
+            <div class="mb-3">
+              <label for="student-no" class="form-label">学号</label>
+              <input type="text" class="form-control" id="student-no" name="student_no" placeholder="请输入学号" required>
+            </div>
+            <div class="mb-3">
+              <label for="student-password" class="form-label">身份证后6位</label>
+              <input type="password" class="form-control" id="student-password" name="password" placeholder="请输入身份证后6位" required maxlength="6">
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-success btn-lg">登录</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Admin login
+    document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('admin-username').value.trim();
+      const password = document.getElementById('admin-password').value;
+
+      try {
+        const result = await apiRequest('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ username, password }),
+        });
+        setToken(result.access_token);
+        setUserInfo({
+          id: result.id,
+          role: result.role,
+          username: result.username,
+          name: result.name,
+        });
+        showAlert('登录成功，正在跳转...', 'success');
+        setTimeout(() => {
+          window.location.href = '/admin';
+        }, 500);
+      } catch (error) {
+        showAlert(error.message || '登录失败，请检查用户名和密码', 'danger');
+      }
+    });
+
+    // Student login
+    document.getElementById('student-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const studentNo = document.getElementById('student-no').value.trim();
+      const password = document.getElementById('student-password').value;
+
+      try {
+        const result = await apiRequest('/auth/student/login', {
+          method: 'POST',
+          body: JSON.stringify({ student_no: studentNo, password }),
+        });
+        setToken(result.access_token);
+        setUserInfo({
+          id: result.id,
+          role: result.role,
+          student_no: result.student_no,
+          name: result.name,
+        });
+        showAlert('登录成功，正在跳转...', 'success');
+        setTimeout(() => {
+          window.location.href = '/student';
+        }, 500);
+      } catch (error) {
+        showAlert(error.message || '登录失败，请检查学号和密码', 'danger');
+      }
+    });
+  });
+</script>
+{% endblock %}
