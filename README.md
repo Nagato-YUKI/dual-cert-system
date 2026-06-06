@@ -27,7 +27,7 @@
 - **Python 3.10+** / **Flask** — Web 框架
 - **SQLAlchemy** — ORM 数据库操作
 - **Flask-JWT-Extended** — JWT 身份认证
-- **PostgreSQL** — 生产数据库（开发默认 SQLite 回退）
+- **PostgreSQL** — 生产数据库（必须配置 DATABASE_URL）
 - **psycopg2-binary** — PostgreSQL 驱动
 - **Werkzeug** — 密码加密与 WSGI
 
@@ -44,7 +44,7 @@
 
 ## API 接口
 
-项目共提供 **40+ 个 RESTful API 接口**，覆盖完整业务流程：
+项目共提供 **42 个 RESTful API 接口**（不含 9 个页面路由），覆盖完整业务流程：
 
 | 模块 | 接口数 | 说明 |
 |------|--------|------|
@@ -131,8 +131,8 @@ cp .env.example .env
 SECRET_KEY=your-secret-key-here
 JWT_SECRET_KEY=your-jwt-secret-key-here
 
-# 数据库（默认使用 SQLite，生产建议 PostgreSQL）
-# DATABASE_URL=postgresql://user:password@localhost:5432/dual_cert_db
+# 数据库（必须配置 PostgreSQL）
+DATABASE_URL=postgresql://user:password@localhost:5432/dual_cert_db
 
 # AI 审核 API（可选，未配置则使用模拟审核）
 AI_API_KEY=your-ai-api-key

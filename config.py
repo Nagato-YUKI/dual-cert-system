@@ -17,11 +17,8 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "dev-jwt-secret-key-change-in-production")
 
-    # Database - default to SQLite if not configured
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL",
-        f"sqlite:///{os.path.join(BASE_DIR, 'data', 'dual_cert.db')}",
-    )
+    # Database - PostgreSQL required
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # File uploads
@@ -30,8 +27,10 @@ class Config:
 
     @classmethod
     def validate(cls) -> None:
-        """Validate that required secrets are configured."""
+        """Validate that required configs are set."""
         if not cls.SECRET_KEY:
-            raise ValueError("SECRET_KEY environment variable is required")
+            raise ValueError("SECRET_KEY environment变量必填")
         if not cls.JWT_SECRET_KEY:
-            raise ValueError("JWT_SECRET_KEY environment variable is required")
+            raise ValueError("JWT_SECRET_KEY 环境变量必填")
+        if not cls.SQLALCHEMY_DATABASE_URI:
+            raise ValueError("DATABASE_URL 环境变量必填（PostgreSQL）")

@@ -76,6 +76,9 @@ if not students:
 random.shuffle(CHINESE_NAMES)
 for idx, student in enumerate(students):
     student.name = CHINESE_NAMES[idx % len(CHINESE_NAMES)]
+    # Set id_card for login (password = last 6 digits of id_card)
+    if not student.id_card:
+        student.id_card = f"4401012000{student.student_no[-6:]}"
     # Generate Pollinations AI avatar URL
     prompt = quote(
         "professional avatar portrait of a Chinese student, "
@@ -86,7 +89,7 @@ for idx, student in enumerate(students):
         f"?width=128&height=128&seed={student.id}&nologo=true"
     )
 db.session.commit()
-print(f"Updated {len(students)} student names with realistic Chinese names and avatar URLs.")
+print(f"Updated {len(students)} student names, id_cards, and avatar URLs.")
 
 # ============================================================
 # 4. 创建证书类型（人社类/专业类/校内引进）
