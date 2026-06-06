@@ -1,101 +1,148 @@
-# 学生校内双证管理系统
+<div align="center">
 
-基于 Flask + PostgreSQL + Bootstrap 5 的学生证书考试全生命周期管理平台，集成 AI 智能审核、知识库引导机器人与 AI 头像生成。
+# 🎓 学生校内双证管理系统
 
-## 功能截图
+**基于 Flask + PostgreSQL + Bootstrap 5 的学生证书考试全生命周期管理平台**
 
-### 登录页面
-![登录页面](screenshots/01_login.png)
-![登录错误提示](screenshots/02_login_error.png)
+集成 AI 智能审核 · 知识库引导机器人 · DiceBear 头像生成
 
-### 管理员端
-![管理仪表盘](screenshots/04_admin_dashboard.png)
-![证书管理](screenshots/05_admin_certificates.png)
-![考试管理](screenshots/06_admin_exams.png)
-![审核中心](screenshots/07_admin_reviews.png)
-![数据大屏](screenshots/08_admin_bigscreen.png)
+---
 
-### 学生端
-![学生仪表盘](screenshots/09_student_dashboard.png)
-![证书浏览](screenshots/10_student_certificates_all.png)
-![考试报名](screenshots/14_student_exams.png)
-![AI聊天助手](screenshots/15_ai_chatbot.png)
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0-000000?logo=flask&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Required-4169E1?logo=postgresql&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?logo=bootstrap&logoColor=white)
+![ECharts](https://img.shields.io/badge/ECharts-5-AA344D?logo=apache-echarts&logoColor=white)
+![DiceBear](https://img.shields.io/badge/DiceBear-Avatars-FF6F00?logo=dicebear&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?logo=opensourceinitiative&logoColor=white)
+![API](https://img.shields.io/badge/API-42_RESTful-009688?logo=fastapi&logoColor=white)
 
-## 技术栈
+</div>
+
+---
+
+## 📸 功能截图
+
+### 🔐 登录页面
+| 登录页面 | 登录错误提示 |
+|:---:|:---:|
+| ![登录页面](screenshots/01_login.png) | ![登录错误提示](screenshots/02_login_error.png) |
+
+### 👨‍💼 管理员端
+| 管理仪表盘 | 证书管理 |
+|:---:|:---:|
+| ![管理仪表盘](screenshots/04_admin_dashboard.png) | ![证书管理](screenshots/05_admin_certificates.png) |
+
+| 考试管理 | 审核中心 |
+|:---:|:---:|
+| ![考试管理](screenshots/06_admin_exams.png) | ![审核中心](screenshots/07_admin_reviews.png) |
+
+| 数据大屏 |
+|:---:|
+| ![数据大屏](screenshots/08_admin_bigscreen.png) |
+
+### 🎓 学生端
+| 学生仪表盘 | 证书浏览 |
+|:---:|:---:|
+| ![学生仪表盘](screenshots/09_student_dashboard.png) | ![证书浏览](screenshots/10_student_certificates_all.png) |
+
+| 考试报名 | AI聊天助手 |
+|:---:|:---:|
+| ![考试报名](screenshots/14_student_exams.png) | ![AI聊天助手](screenshots/15_ai_chatbot.png) |
+
+---
+
+## 🛠 技术栈
 
 ### 后端
-- **Python 3.10+** / **Flask** — Web 框架
-- **SQLAlchemy** — ORM 数据库操作
-- **Flask-JWT-Extended** — JWT 身份认证
-- **PostgreSQL** — 生产数据库（必须配置 DATABASE_URL）
-- **psycopg2-binary** — PostgreSQL 驱动
-- **Werkzeug** — 密码加密与 WSGI
+
+| 技术 | 版本 | 说明 | 徽章 |
+|------|------|------|------|
+| Python | 3.10+ | 核心运行时 | ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white) |
+| Flask | 3.0 | Web 框架 | ![Flask](https://img.shields.io/badge/Flask-3.0-000000?logo=flask&logoColor=white) |
+| SQLAlchemy | - | ORM 数据库操作 | ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-D71F00?logo=sqlalchemy&logoColor=white) |
+| Flask-JWT-Extended | - | JWT 身份认证 | ![JWT](https://img.shields.io/badge/JWT-Auth-000000?logo=jsonwebtokens&logoColor=white) |
+| PostgreSQL | Required | 生产数据库（**必须配置 `DATABASE_URL`**） | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Required-4169E1?logo=postgresql&logoColor=white) |
+| psycopg2-binary | - | PostgreSQL 驱动 | ![psycopg2](https://img.shields.io/badge/psycopg2-binary-336791?logo=postgresql&logoColor=white) |
+| Werkzeug | - | 密码加密与 WSGI | ![Werkzeug](https://img.shields.io/badge/Werkzeug-WSGI-5A5A5A?logo=pallets&logoColor=white) |
 
 ### 前端
-- **Bootstrap 5** — UI 框架与响应式布局
-- **ECharts 5** — 数据可视化图表（仪表盘、数据大屏）
-- **原生 JavaScript** — 前端交互逻辑
+
+| 技术 | 版本 | 说明 | 徽章 |
+|------|------|------|------|
+| Bootstrap | 5 | UI 框架与响应式布局 | ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?logo=bootstrap&logoColor=white) |
+| ECharts | 5 | 数据可视化图表（仪表盘、数据大屏） | ![ECharts](https://img.shields.io/badge/ECharts-5-AA344D?logo=apache-echarts&logoColor=white) |
+| JavaScript | ES6+ | 前端交互逻辑 | ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript&logoColor=black) |
 
 ### 扩展 API 与服务
-- **AI 审核 API**（OpenAI 兼容接口）— 接入大语言模型自动审核报名材料，未配置时使用差异化模拟审核
-- **Pollinations AI** — 学生头像自动生成（免费、无需注册、基于 FLUX 模型）
-- **腾讯云 SMS SDK** — 短信通知服务（签名审核通过后可切换真实发送）
-- **AI 知识库引导机器人** — 基于证书考试规则知识库的智能问答，关键词匹配 + 意图识别
 
-## API 接口
+| 服务 | 说明 | 徽章 |
+|------|------|------|
+| AI 审核 API | 接入大语言模型自动审核报名材料（OpenAI 兼容接口），未配置时使用差异化模拟审核 | ![AI](https://img.shields.io/badge/AI-Review-412991?logo=openai&logoColor=white) |
+| DiceBear | 开源头像生成库，35+ 风格，确定性生成，无需 API Key | ![DiceBear](https://img.shields.io/badge/DiceBear-Avatars-FF6F00?logo=dicebear&logoColor=white) |
+| 腾讯云 SMS | 短信通知服务（签名审核通过后可切换真实发送） | ![SMS](https://img.shields.io/badge/腾讯云-SMS-006EFF?logo=tencentqq&logoColor=white) |
+| AI 知识库机器人 | 基于证书考试规则知识库的智能问答，关键词匹配 + 意图识别 | ![Chatbot](https://img.shields.io/badge/AI-Chatbot-10A37F?logo=openai&logoColor=white) |
+
+---
+
+## 🔌 API 接口
 
 项目共提供 **42 个 RESTful API 接口**（不含 9 个页面路由），覆盖完整业务流程：
 
 | 模块 | 接口数 | 说明 |
-|------|--------|------|
-| 认证模块 | 3 | 管理员登录、学生登录、获取当前用户 |
-| 管理员-证书 | 5 | 证书类型 CRUD + 报名规则管理 |
-| 管理员-考试 | 4 | 考试 CRUD |
-| 管理员-审核 | 5 | AI审核、批量审核、人工审核、状态查询 |
-| 管理员-导入 | 2 | 批量导入 + 模板下载 |
-| 管理员-材料 | 4 | 培训材料 CRUD |
-| 管理员-归档 | 3 | 按考试归档、班级列表、导出 |
-| 管理员-其他 | 3 | 操作日志、数据大屏、班级分布 |
-| 学生端 | 8 | 证书浏览、考试报名、报名记录、证书记录、培训材料 |
-| AI 聊天 | 1 | 知识库智能问答 |
-| 系统 API | 4 | 健康检查、学生列表、证书记录、API Key |
+|:---:|:---:|------|
+| 🔑 认证模块 | 3 | 管理员登录、学生登录、获取当前用户 |
+| 📋 管理员-证书 | 5 | 证书类型 CRUD + 报名规则管理 |
+| 📝 管理员-考试 | 4 | 考试 CRUD |
+| ✅ 管理员-审核 | 5 | AI审核、批量审核、人工审核、状态查询 |
+| 📥 管理员-导入 | 2 | 批量导入 + 模板下载 |
+| 📚 管理员-材料 | 4 | 培训材料 CRUD |
+| 📁 管理员-归档 | 3 | 按考试归档、班级列表、导出 |
+| ⚙️ 管理员-其他 | 3 | 操作日志、数据大屏、班级分布 |
+| 🎓 学生端 | 8 | 证书浏览、考试报名、报名记录、证书记录、培训材料 |
+| 🤖 AI 聊天 | 1 | 知识库智能问答 |
+| 🌐 系统 API | 4 | 健康检查、学生列表、证书记录、API Key |
 
-## 功能模块
+---
 
-### 管理员端
+## 🧩 功能模块
 
-| 功能 | 说明 |
-|------|------|
-| 管理仪表盘 | 统计卡片（证书/考试/报名/通过率）+ 报名趋势图 + 分类分布图 |
-| 证书管理 | 证书类型 CRUD，支持人社类/专业类/校内引进三大分类 |
-| 考试管理 | 考试安排、报名时间段、容量控制、费用设置 |
-| 审核中心 | AI 自动审核 + 人工审核队列，支持通过/拒绝/要求补充，异步执行 |
-| 数据大屏 | 全屏 ECharts 可视化，一屏展示关键业务指标，支持退出按钮 |
-
-### 学生端
+### 👨‍💼 管理员端
 
 | 功能 | 说明 |
 |------|------|
-| 学生仪表盘 | 个人统计 + 最近报名记录 + AI 生成头像 |
-| 证书浏览 | 按分类展示（全部/人社类/专业类/校内引进），卡片式布局 |
-| 考试报名 | 浏览可报名考试，已报名显示灰色禁用按钮，重复报名提示 |
-| AI 引导机器人 | 右下角浮动聊天窗口，基于知识库回答证书考试相关问题 |
-| AI 头像生成 | 首次登录自动生成个性化头像（Pollinations AI + FLUX 模型） |
+| 📊 管理仪表盘 | 统计卡片（证书/考试/报名/通过率）+ 报名趋势图 + 分类分布图 |
+| 📜 证书管理 | 证书类型 CRUD，支持人社类/专业类/校内引进三大分类 |
+| 📅 考试管理 | 考试安排、报名时间段、容量控制、费用设置 |
+| 🔍 审核中心 | AI 自动审核 + 人工审核队列，支持通过/拒绝/要求补充，异步执行 |
+| 📈 数据大屏 | 全屏 ECharts 可视化，一屏展示关键业务指标，支持退出按钮 |
 
-### 系统功能
+### 🎓 学生端
 
 | 功能 | 说明 |
 |------|------|
-| JWT 认证 | 管理员/学生双角色登录，中文错误提示，登录框内联显示 |
-| 批量导入 | Excel/CSV 导入学生、成绩、证书记录 |
-| 材料归档 | 按考试/班级目录结构自动归档 |
-| 培训材料 | 管理端上传，学生端查看 |
-| 短信通知 | 腾讯云 SMS 结构，模拟发送模式 |
-| 教务对接 | 外部 API + API Key 鉴权 |
-| 证书推荐 | 基于专业+年级规则引擎 |
-| 操作日志 | 审计追踪，自动记录关键操作 |
+| 🏠 学生仪表盘 | 个人统计 + 最近报名记录 + DiceBear 生成头像 |
+| 📜 证书浏览 | 按分类展示（全部/人社类/专业类/校内引进），卡片式布局 |
+| ✍️ 考试报名 | 浏览可报名考试，已报名显示灰色禁用按钮，重复报名提示 |
+| 🤖 AI 引导机器人 | 右下角浮动聊天窗口，基于知识库回答证书考试相关问题 |
+| 🎨 AI 头像生成 | 首次登录自动生成个性化头像（DiceBear 开源头像库，35+ 风格，确定性生成） |
 
-## 快速开始
+### ⚙️ 系统功能
+
+| 功能 | 说明 |
+|------|------|
+| 🔐 JWT 认证 | 管理员/学生双角色登录，中文错误提示，登录框内联显示 |
+| 📥 批量导入 | Excel/CSV 导入学生、成绩、证书记录 |
+| 📁 材料归档 | 按考试/班级目录结构自动归档 |
+| 📚 培训材料 | 管理端上传，学生端查看 |
+| 📱 短信通知 | 腾讯云 SMS 结构，模拟发送模式 |
+| 🔗 教务对接 | 外部 API + API Key 鉴权 |
+| 💡 证书推荐 | 基于专业+年级规则引擎 |
+| 📋 操作日志 | 审计追踪，自动记录关键操作 |
+
+---
+
+## 🚀 快速开始
 
 ### 1. 克隆仓库
 
@@ -140,6 +187,8 @@ AI_API_BASE=https://api.openai.com/v1
 AI_MODEL=gpt-3.5-turbo
 ```
 
+> ⚠️ **注意**：本项目**必须配置 PostgreSQL**，不再支持 SQLite 回退。请确保已安装并运行 PostgreSQL 服务。
+
 ### 4. 初始化数据库
 
 ```bash
@@ -161,11 +210,13 @@ python app.py
 ### 6. 默认账号
 
 | 角色 | 账号 | 密码 |
-|------|------|------|
-| 管理员 | admin | admin123 |
-| 学生 | 学号（如 20240001） | 身份证后6位（如 010001） |
+|:---:|------|------|
+| 👨‍💼 管理员 | `admin` | `admin123` |
+| 🎓 学生 | 学号（如 `20240001`） | 身份证后6位（如 `010001`） |
 
-## 项目结构
+---
+
+## 📁 项目结构
 
 ```
 .
@@ -183,7 +234,7 @@ python app.py
 │   │   ├── training_material.py # 培训材料
 │   │   ├── review_log.py        # 审核日志
 │   │   └── operation_log.py     # 操作日志
-│   ├── routes/                  # API 路由（40+ 接口）
+│   ├── routes/                  # API 路由（42 接口）
 │   │   ├── auth.py              # 认证接口（3）
 │   │   ├── admin.py             # 管理员接口（26）
 │   │   ├── student.py           # 学生接口（8）
@@ -219,56 +270,54 @@ python app.py
 └── README.md
 ```
 
-## 迭代记录
+---
 
-### V1 — 基础框架（2026-06-06）
-- Flask 应用工厂 + SQLAlchemy 数据库模型
-- JWT 双角色认证（管理员/学生）
-- 证书类型 CRUD + 考试管理 + 学生报名
-- AI 审核集成（LLM API）
-- 人工审核队列
-- 批量导入 + 材料归档
-- 管理仪表盘 + 学生仪表盘
+## 📅 迭代记录
 
-### V2 — 拓展功能（2026-06-06）
-- 短信通知（腾讯云 SMS SDK）
-- 教务系统对接（外部 API）
-- 证书推荐引擎（专业+年级规则）
-- 数据大屏（全屏 ECharts 可视化）
-- 操作日志审计
+| 版本 | 日期 | 核心更新 | 亮点 |
+|:---:|:---:|------|------|
+| ![V1](https://img.shields.io/badge/V1-基础框架-blue) | 2026-06-06 | Flask 应用工厂 + SQLAlchemy 数据库模型 | JWT 双角色认证 |
+| | | 证书类型 CRUD + 考试管理 + 学生报名 | 管理员/学生双端 |
+| | | AI 审核集成（LLM API） | 智能化审核 |
+| | | 人工审核队列 + 批量导入 + 材料归档 | 全流程覆盖 |
+| | | 管理仪表盘 + 学生仪表盘 | 数据可视化 |
+| ![V2](https://img.shields.io/badge/V2-拓展功能-green) | 2026-06-06 | 短信通知（腾讯云 SMS SDK） | 即时通知 |
+| | | 教务系统对接（外部 API） | 系统集成 |
+| | | 证书推荐引擎（专业+年级规则） | 智能推荐 |
+| | | 数据大屏（全屏 ECharts 可视化） | 一屏总览 |
+| | | 操作日志审计 | 安全合规 |
+| ![V3](https://img.shields.io/badge/V3-数据库迁移与UI重构-orange) | 2026-06-07 | 数据库从 SQLite 迁移到 PostgreSQL | 生产级数据库 |
+| | | UI 全面重构（Bootstrap 5 响应式布局） | 现代化界面 |
+| | | 安全加固（.env 配置、默认值回退） | 安全增强 |
+| | | API 路由与页面路由冲突修复 | 稳定性提升 |
+| ![V4](https://img.shields.io/badge/V4-用户体验增强-purple) | 2026-06-07 | 登录错误提示中文化 + 内联显示 | 友好提示 |
+| | | 全局状态标签统一中文映射（18种状态） | 一致性体验 |
+| | | AI 审核优化：差异化模拟 + 异步执行 + 前端轮询 | 高效审核 |
+| | | 证书分类对齐 + Tab 切换 | 清晰分类 |
+| | | 报名按钮状态反馈 + 重复报名提示 | 交互优化 |
+| | | 模拟数据完善（真实姓名、报名规则、培训材料） | 数据真实 |
+| | | AI 知识库引导机器人（11种证书知识库 + 智能问答） | 智能助手 |
+| | | 数据大屏增加退出按钮 + 不可滚动 + 一屏布局 | 沉浸体验 |
+| ![V5](https://img.shields.io/badge/V5-AI头像与文档完善-red) | 2026-06-07 | AI 头像生成（DiceBear 开源头像库，35+ 风格，确定性生成） | 个性化头像 |
+| | | Student 模型新增 avatar_url 字段 | 数据扩展 |
+| | | 前端头像显示（图片优先，加载失败回退首字母） | 优雅降级 |
+| | | 学生仪表盘显示 AI 生成头像 | 视觉增强 |
+| | | README 添加功能截图 + 项目文档完善 | 文档齐全 |
 
-### V3 — 数据库迁移与 UI 重构（2026-06-07）
-- 数据库从 SQLite 迁移到 PostgreSQL
-- UI 全面重构（Bootstrap 5 响应式布局）
-- 安全加固（.env 配置、默认值回退）
-- API 路由与页面路由冲突修复
+---
 
-### V4 — 用户体验增强（2026-06-07）
-- 登录错误提示中文化 + 内联显示
-- 全局状态标签统一中文映射（18种状态）
-- AI 审核优化：差异化模拟结果 + 异步执行 + 前端轮询
-- 证书分类对齐（人社类/专业类/校内引进）+ Tab 切换
-- 报名按钮状态反馈（已报名灰色禁用 + 重复报名提示）
-- 模拟数据完善（真实姓名、报名规则、培训材料、AI 审核结果）
-- AI 知识库引导机器人（11种证书知识库 + 智能问答）
-- 数据大屏增加退出按钮 + 不可滚动 + 一屏布局
+## 📖 证书知识库覆盖
 
-### V5 — AI 头像与文档完善（2026-06-07）
-- AI 头像自动生成（Pollinations AI + FLUX 模型，首次登录自动生成）
-- Student 模型新增 avatar_url 字段
-- 前端头像显示（图片优先，加载失败回退首字母）
-- 学生仪表盘显示 AI 生成头像
-- README 添加功能截图
-- 项目文档完善（需求文档、迭代记录、路演PPT）
+| 分类 | 证书 | 数量 |
+|:---:|------|:---:|
+| 🏛 人社类 | CET-4、CET-6、普通话水平测试 | 3 |
+| 💻 专业类 | 计算机二级 Python、计算机二级 MS Office、教师资格证、会计初级 | 4 |
+| 🏫 校内引进 | 办公软件应用、网页设计、数据库管理、创新创业 | 4 |
 
-## 证书知识库覆盖
+---
 
-| 分类 | 证书 |
-|------|------|
-| 人社类 | CET-4、CET-6、普通话水平测试 |
-| 专业类 | 计算机二级 Python、计算机二级 MS Office、教师资格证、会计初级 |
-| 校内引进 | 办公软件应用、网页设计、数据库管理、创新创业 |
+## 📄 License
 
-## License
+![License](https://img.shields.io/badge/License-MIT-green?logo=opensourceinitiative&logoColor=white)
 
-MIT
+本项目基于 [MIT License](https://opensource.org/licenses/MIT) 开源。
