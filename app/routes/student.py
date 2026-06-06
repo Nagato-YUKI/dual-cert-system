@@ -10,6 +10,7 @@ from app.models.registration import Registration
 from app.models.student import Student
 from app.models.training_material import TrainingMaterial
 from app.routes.auth import student_required
+from app.services.sms_service import notify_registration_status
 
 student_bp = Blueprint("student", __name__)
 
@@ -20,13 +21,32 @@ student_bp = Blueprint("student", __name__)
 
 @student_bp.route("/cert-types", methods=["GET"])
 def list_cert_types():
-    """List active certificate types."""
+    """List active certificate types with recommendation flag."""
     category = request.args.get("category")
     query = db.select(CertType).filter_by(status="active")
     if category:
         query = query.filter_by(category=category)
     items = db.session.execute(query).scalars().all()
-    return jsonify([_cert_type_to_dict(i) for i in items])
+
+    # Get current student for recommendation
+    from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
+    student = None
+    try:
+        verify_jwt_in_request()
+        identity = get_jwt_identity()
+        if identity and identity.get("role") == "student":
+            student = db.session.execute(
+                db.select(Student).filter_by(id=identity["id"])
+            ).scalar_one_or_none()
+    except Exception:
+        pass
+
+    result = []
+    for item in items:
+        cert_dict = _cert_type_to_dict(item)
+        cert_dict["is_recommended_for_me"] = _is_recommended(item, student)
+        result.append(cert_dict)
+    return jsonify(result)
 
 
 @student_bp.route("/cert-types/<int:cert_id>", methods=["GET"])
@@ -100,6 +120,18 @@ def register_exam(exam_id: int):
     )
     db.session.add(reg)
     db.session.commit()
+
+    # Send SMS notification if student has phone
+    student = db.session.execute(
+        db.select(Student).filter_by(id=student_id)
+    ).scalar_one_or_none()
+    if student and student.phone:
+        notify_registration_status(
+            phone=student.phone,
+            exam_name=exam.exam_name,
+            status="报名成功，待审核",
+        )
+
     return jsonify(_registration_to_dict(reg)), 201
 
 
@@ -250,3 +282,41 @@ def _material_to_dict(material: TrainingMaterial) -> dict:
         "is_public": material.is_public,
         "created_at": material.created_at.isoformat() if material.created_at else None,
     }
+
+
+def _is_recommended(cert_type: CertType, student: Optional[Student]) -> bool:
+    """Check if a certificate type is recommended for the given student.
+
+    Rules:
+    1. If cert_type.is_recommended is True, it's globally recommended.
+    2. If registration_rule exists, match student's grade/major.
+    3. If student has no class info, return global recommendation only.
+    """
+    if not student:
+        return bool(cert_type.is_recommended)
+
+    # Global recommendation
+    if cert_type.is_recommended:
+        return True
+
+    # Rule-based recommendation
+    rule = cert_type.registration_rule
+    if not rule:
+        return False
+
+    student_grade = student.class_.grade if student.class_ else None
+    student_major = student.class_.major if student.class_ else None
+
+    # Check grade match
+    if rule.required_grades and student_grade:
+        grades = [g.strip() for g in rule.required_grades.split(",")]
+        if student_grade in grades:
+            return True
+
+    # Check major match
+    if rule.required_majors and student_major:
+        majors = [m.strip() for m in rule.required_majors.split(",")]
+        if student_major in majors:
+            return True
+
+    return False

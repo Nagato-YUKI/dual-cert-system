@@ -10,6 +10,7 @@ from app.models.registration import Registration
 from app.models.review_log import ReviewLog
 from app.routes.auth import admin_required
 from app.services.ai_review import ai_review_registration
+from app.services.sms_service import notify_registration_status
 
 review_bp = Blueprint("review", __name__)
 
@@ -167,6 +168,16 @@ def human_review(reg_id: int):
     )
     db.session.add(log)
     db.session.commit()
+
+    # Send SMS notification if student has phone
+    student_phone = reg.student.phone if reg.student else None
+    if student_phone:
+        notify_registration_status(
+            phone=student_phone,
+            exam_name=reg.exam.exam_name if reg.exam else "未知考试",
+            status="已通过" if action == "approved" else "未通过" if action == "rejected" else "需补充材料",
+            review_comment=comment,
+        )
 
     return jsonify({"msg": f"Registration {action}"})
 

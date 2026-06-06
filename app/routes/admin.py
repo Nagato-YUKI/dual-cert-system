@@ -6,8 +6,11 @@ from flask import Blueprint, jsonify, request, send_file
 
 from app import db
 from app.models.cert_type import CertType
+from app.models.certificate_record import CertificateRecord
 from app.models.exam import Exam
+from app.models.registration import Registration
 from app.models.registration_rule import RegistrationRule
+from app.models.student import Student
 from app.models.training_material import TrainingMaterial
 from app.routes.auth import admin_required
 from app.services.archive_service import (
@@ -15,6 +18,7 @@ from app.services.archive_service import (
     export_archive,
     list_archive_by_class,
 )
+from app.services.audit_service import log_operation
 from app.services.import_service import (
     generate_template,
     import_cert_records,
@@ -43,6 +47,7 @@ def list_cert_types():
 
 @admin_bp.route("/cert-types", methods=["POST"])
 @admin_required
+@log_operation(action="create_cert_type", target_type="cert_type")
 def create_cert_type():
     """Create a new certificate type."""
     data = request.get_json(silent=True) or {}
@@ -67,6 +72,7 @@ def create_cert_type():
 
 @admin_bp.route("/cert-types/<int:cert_id>", methods=["PUT"])
 @admin_required
+@log_operation(action="update_cert_type", target_type="cert_type", get_target_id=lambda cert_id, **kw: cert_id)
 def update_cert_type(cert_id: int):
     """Update a certificate type."""
     cert = db.session.execute(
@@ -89,6 +95,7 @@ def update_cert_type(cert_id: int):
 
 @admin_bp.route("/cert-types/<int:cert_id>", methods=["DELETE"])
 @admin_required
+@log_operation(action="delete_cert_type", target_type="cert_type", get_target_id=lambda cert_id, **kw: cert_id)
 def delete_cert_type(cert_id: int):
     """Delete a certificate type."""
     cert = db.session.execute(
@@ -169,6 +176,7 @@ def list_exams():
 
 @admin_bp.route("/exams", methods=["POST"])
 @admin_required
+@log_operation(action="create_exam", target_type="exam", get_details=lambda **kw: f"Created exam: {kw.get('result', [{}])[0].get('exam_name', '')}")
 def create_exam():
     """Create a new exam."""
     data = request.get_json(silent=True) or {}
@@ -193,6 +201,7 @@ def create_exam():
 
 @admin_bp.route("/exams/<int:exam_id>", methods=["PUT"])
 @admin_required
+@log_operation(action="update_exam", target_type="exam", get_target_id=lambda exam_id, **kw: exam_id)
 def update_exam(exam_id: int):
     """Update an exam."""
     exam = db.session.execute(
@@ -217,6 +226,7 @@ def update_exam(exam_id: int):
 
 @admin_bp.route("/exams/<int:exam_id>", methods=["DELETE"])
 @admin_required
+@log_operation(action="delete_exam", target_type="exam", get_target_id=lambda exam_id, **kw: exam_id)
 def delete_exam(exam_id: int):
     """Delete an exam."""
     exam = db.session.execute(
@@ -447,3 +457,141 @@ def export_archive_file(exam_id: int):
         return send_file(zip_path, as_attachment=True)
     except ValueError as e:
         return jsonify({"msg": str(e)}), 400
+
+
+# ---------------------------------------------------------------------------
+# Operation Logs
+# ---------------------------------------------------------------------------
+
+@admin_bp.route("/logs", methods=["GET"])
+@admin_required
+def list_operation_logs():
+    """List operation logs with optional filters."""
+    from app.models.operation_log import OperationLog
+
+    action = request.args.get("action")
+    target_type = request.args.get("target_type")
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 20, type=int)
+
+    query = db.select(OperationLog).order_by(OperationLog.created_at.desc())
+    if action:
+        query = query.filter_by(action=action)
+    if target_type:
+        query = query.filter_by(target_type=target_type)
+
+    pagination = db.paginate(query, page=page, per_page=per_page)
+    return jsonify({
+        "items": [_log_to_dict(i) for i in pagination.items],
+        "total": pagination.total,
+        "pages": pagination.pages,
+        "page": page,
+        "per_page": per_page,
+    })
+
+
+def _log_to_dict(log) -> dict:
+    return {
+        "id": log.id,
+        "user_id": log.user_id,
+        "user_name": log.user.username if log.user else None,
+        "student_id": log.student_id,
+        "student_name": log.student.name if log.student else None,
+        "action": log.action,
+        "target_type": log.target_type,
+        "target_id": log.target_id,
+        "details": log.details,
+        "ip_address": log.ip_address,
+        "created_at": log.created_at.isoformat() if log.created_at else None,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Big Screen Data
+# ---------------------------------------------------------------------------
+
+@admin_bp.route("/bigscreen/data", methods=["GET"])
+@admin_required
+def bigscreen_data():
+    """Aggregate data for big screen visualization."""
+    # Total counts
+    total_certs = db.session.execute(
+        db.select(db.func.count(CertType.id))
+    ).scalar()
+    total_exams = db.session.execute(
+        db.select(db.func.count(Exam.id))
+    ).scalar()
+    total_students = db.session.execute(
+        db.select(db.func.count(Student.id))
+    ).scalar()
+    total_registrations = db.session.execute(
+        db.select(db.func.count(Registration.id))
+    ).scalar()
+
+    # Registration status distribution
+    reg_status_counts = db.session.execute(
+        db.select(Registration.status, db.func.count(Registration.id))
+        .group_by(Registration.status)
+    ).all()
+
+    # Certificate category distribution
+    cert_category_counts = db.session.execute(
+        db.select(CertType.category, db.func.count(CertType.id))
+        .group_by(CertType.category)
+    ).all()
+
+    # Monthly registration trend (last 6 months)
+    from sqlalchemy import text
+    monthly_trend = db.session.execute(
+        text(
+            "SELECT strftime('%Y-%m', submit_time) as month, COUNT(id) "
+            "FROM registrations WHERE submit_time >= date('now', '-6 months') "
+            "GROUP BY month ORDER BY month"
+        )
+    ).all()
+
+    # Top 5 exams by registration count
+    top_exams = db.session.execute(
+        db.select(Exam.exam_name, db.func.count(Registration.id))
+        .join(Registration, Exam.id == Registration.exam_id)
+        .group_by(Exam.id)
+        .order_by(db.func.count(Registration.id).desc())
+        .limit(5)
+    ).all()
+
+    # Class distribution
+    class_distribution = db.session.execute(
+        db.select(Student.class_id, db.func.count(Student.id))
+        .group_by(Student.class_id)
+    ).all()
+    class_names = []
+    class_counts = []
+    for cid, count in class_distribution:
+        class_obj = db.session.execute(
+            db.select(Student.class_).filter_by(id=cid)
+        ).scalar_one_or_none() if cid else None
+        class_names.append(class_obj.name if class_obj else "未分类")
+        class_counts.append(count)
+
+    return jsonify({
+        "total_certs": total_certs,
+        "total_exams": total_exams,
+        "total_students": total_students,
+        "total_registrations": total_registrations,
+        "reg_status_distribution": [
+            {"status": s, "count": c} for s, c in reg_status_counts
+        ],
+        "cert_category_distribution": [
+            {"category": c, "count": n} for c, n in cert_category_counts
+        ],
+        "monthly_trend": [
+            {"month": m, "count": c} for m, c in monthly_trend
+        ],
+        "top_exams": [
+            {"exam_name": n, "count": c} for n, c in top_exams
+        ],
+        "class_distribution": {
+            "names": class_names,
+            "counts": class_counts,
+        },
+    })

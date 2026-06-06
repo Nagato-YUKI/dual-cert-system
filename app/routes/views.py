@@ -57,3 +57,9 @@ def student_certificates():
 def student_exams():
     """Student exam registration page."""
     return render_template("student/exams.html")
+
+
+@views_bp.route("/admin/bigscreen")
+def admin_bigscreen():
+    """Admin data big screen page."""
+    return render_template("admin/bigscreen.html")

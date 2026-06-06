@@ -1,0 +1,45 @@
+# 敏感文件
+.env
+.env.local
+.env.production
+*.pem
+*.key
+*.secret
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.mypy_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 项目相关
+data/*.db
+*.sqlite
+*.sqlite3
+static/uploads/*
+!static/uploads/.gitkeep
+
+# 临时文件
+*.tmp
+*.bak

@@ -88,6 +88,7 @@ function renderCards(data) {
           <div class="d-flex gap-2 mb-2">
             ${item.is_required ? '<span class="badge bg-danger">必修</span>' : ''}
             ${item.is_recommended ? '<span class="badge bg-success">推荐</span>' : ''}
+            ${item.is_recommended_for_me ? '<span class="badge bg-primary">适合我</span>' : ''}
             <span class="badge bg-secondary">${escapeHtml(item.category)}</span>
           </div>
           <button class="btn btn-sm btn-outline-primary" onclick="showDetail(${item.id})">查看详情</button>
