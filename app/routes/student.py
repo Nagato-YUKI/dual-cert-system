@@ -1,5 +1,7 @@
 """Student routes module."""
 
+from typing import Optional
+
 from flask import Blueprint, jsonify, request
 
 from app import db
@@ -33,11 +35,10 @@ def list_cert_types():
     student = None
     try:
         verify_jwt_in_request()
-        identity = get_jwt_identity()
-        if identity and identity.get("role") == "student":
-            student = db.session.execute(
-                db.select(Student).filter_by(id=identity["id"])
-            ).scalar_one_or_none()
+        user_id = int(get_jwt_identity())
+        student = db.session.execute(
+            db.select(Student).filter_by(id=user_id)
+        ).scalar_one_or_none()
     except Exception:
         pass
 
@@ -203,7 +204,13 @@ def __get_student_identity() -> dict:
     """Get student identity from JWT (called inside student_required)."""
     from flask_jwt_extended import get_jwt_identity
 
-    return get_jwt_identity()
+    user_id = int(get_jwt_identity())
+    student = db.session.execute(
+        db.select(Student).filter_by(id=user_id)
+    ).scalar_one_or_none()
+    if student:
+        return {"id": student.id, "role": "student"}
+    return {"id": user_id, "role": "unknown"}
 
 
 def _cert_type_to_dict(cert: CertType) -> dict:

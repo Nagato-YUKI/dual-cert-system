@@ -52,9 +52,12 @@ async function apiRequest(url, options = {}) {
     headers,
   };
 
+  console.log('[apiRequest]', url, 'token:', token ? 'present' : 'none');
   const response = await fetch(API_BASE_URL + url, config);
+  console.log('[apiRequest]', url, 'status:', response.status);
 
   if (response.status === 401) {
+    console.log('[apiRequest] 401 Unauthorized, clearing token');
     removeToken();
     window.location.href = '/login';
     return Promise.reject(new Error('Unauthorized'));
@@ -78,16 +81,20 @@ async function apiRequest(url, options = {}) {
 async function checkAuth() {
   const token = getToken();
   if (!token) {
+    console.log('[checkAuth] No token found, redirecting to login');
     redirectToLogin();
     return false;
   }
 
   try {
+    console.log('[checkAuth] Token found, calling /auth/me');
     const user = await apiRequest('/auth/me');
+    console.log('[checkAuth] /auth/me success:', user);
     setUserInfo(user);
     updateNavbar(user);
     return true;
   } catch (error) {
+    console.log('[checkAuth] /auth/me failed:', error.message);
     removeToken();
     redirectToLogin();
     return false;

@@ -143,8 +143,7 @@ def human_review(reg_id: int):
     if not reg:
         return jsonify({"msg": "Registration not found"}), 404
 
-    identity = get_jwt_identity()
-    reviewer_id = identity.get("id")
+    reviewer_id = int(get_jwt_identity())
 
     if action == "approved":
         reg.status = "approved"

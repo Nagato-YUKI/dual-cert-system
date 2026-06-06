@@ -3,61 +3,66 @@
 {% block title %}登录 - 证书管理系统{% endblock %}
 
 {% block content %}
-<div class="login-container fade-in">
-  <div class="card login-card">
-    <div class="card-header text-center pt-4">
-      <h3 class="mb-0">证书管理系统</h3>
-      <p class="text-muted">请登录您的账户</p>
+<div class="login-page">
+  <div class="login-card">
+    <div class="text-center mb-4">
+      <div class="mb-3">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
+        </svg>
+      </div>
+      <h1 class="login-title">证书管理系统</h1>
+      <p class="login-subtitle">校内双证管理平台</p>
     </div>
-    <div class="card-body px-4 pb-4">
-      <!-- Login Tabs -->
-      <ul class="nav nav-tabs nav-justified mb-4" id="loginTab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin-login" type="button" role="tab">
-            管理员登录
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="student-tab" data-bs-toggle="tab" data-bs-target="#student-login" type="button" role="tab">
-            学生登录
-          </button>
-        </li>
-      </ul>
 
-      <div class="tab-content" id="loginTabContent">
-        <!-- Admin Login Form -->
-        <div class="tab-pane fade show active" id="admin-login" role="tabpanel">
-          <form id="admin-login-form">
-            <div class="mb-3">
-              <label for="admin-username" class="form-label">用户名</label>
-              <input type="text" class="form-control" id="admin-username" name="username" placeholder="请输入用户名" required>
-            </div>
-            <div class="mb-3">
-              <label for="admin-password" class="form-label">密码</label>
-              <input type="password" class="form-control" id="admin-password" name="password" placeholder="请输入密码" required>
-            </div>
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary btn-lg">登录</button>
-            </div>
-          </form>
-        </div>
+    <!-- Login Tabs -->
+    <ul class="nav nav-pills nav-justified mb-4" id="loginTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin-login" type="button" role="tab">
+          管理员
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="student-tab" data-bs-toggle="tab" data-bs-target="#student-login" type="button" role="tab">
+          学生
+        </button>
+      </li>
+    </ul>
 
-        <!-- Student Login Form -->
-        <div class="tab-pane fade" id="student-login" role="tabpanel">
-          <form id="student-login-form">
-            <div class="mb-3">
-              <label for="student-no" class="form-label">学号</label>
-              <input type="text" class="form-control" id="student-no" name="student_no" placeholder="请输入学号" required>
-            </div>
-            <div class="mb-3">
-              <label for="student-password" class="form-label">身份证后6位</label>
-              <input type="password" class="form-control" id="student-password" name="password" placeholder="请输入身份证后6位" required maxlength="6">
-            </div>
-            <div class="d-grid">
-              <button type="submit" class="btn btn-success btn-lg">登录</button>
-            </div>
-          </form>
-        </div>
+    <div class="tab-content" id="loginTabContent">
+      <!-- Admin Login Form -->
+      <div class="tab-pane fade show active" id="admin-login" role="tabpanel">
+        <form id="admin-login-form">
+          <div class="mb-3">
+            <label for="admin-username" class="form-label fw-medium">用户名</label>
+            <input type="text" class="form-control" id="admin-username" name="username" placeholder="请输入用户名" required>
+          </div>
+          <div class="mb-4">
+            <label for="admin-password" class="form-label fw-medium">密码</label>
+            <input type="password" class="form-control" id="admin-password" name="password" placeholder="请输入密码" required>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">登录</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Student Login Form -->
+      <div class="tab-pane fade" id="student-login" role="tabpanel">
+        <form id="student-login-form">
+          <div class="mb-3">
+            <label for="student-no" class="form-label fw-medium">学号</label>
+            <input type="text" class="form-control" id="student-no" name="student_no" placeholder="请输入学号" required>
+          </div>
+          <div class="mb-4">
+            <label for="student-password" class="form-label fw-medium">身份证后6位</label>
+            <input type="password" class="form-control" id="student-password" name="password" placeholder="请输入身份证后6位" required maxlength="6">
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">登录</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

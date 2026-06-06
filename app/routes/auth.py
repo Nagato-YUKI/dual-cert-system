@@ -24,8 +24,11 @@ def admin_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
-        identity = get_jwt_identity()
-        if identity.get("role") != "admin":
+        user_id = int(get_jwt_identity())
+        user = db.session.execute(
+            db.select(User).filter_by(id=user_id)
+        ).scalar_one_or_none()
+        if not user or user.role != "admin":
             return jsonify({"msg": "Admin access required"}), 403
         return fn(*args, **kwargs)
 
@@ -38,8 +41,11 @@ def student_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
-        identity = get_jwt_identity()
-        if identity.get("role") != "student":
+        user_id = int(get_jwt_identity())
+        student = db.session.execute(
+            db.select(Student).filter_by(id=user_id)
+        ).scalar_one_or_none()
+        if not student:
             return jsonify({"msg": "Student access required"}), 403
         return fn(*args, **kwargs)
 
@@ -64,7 +70,7 @@ def admin_login():
         return jsonify({"msg": "Invalid username or password"}), 401
 
     access_token = create_access_token(
-        identity={"id": user.id, "role": "admin", "username": user.username}
+        identity=str(user.id)
     )
     return jsonify({
         "access_token": access_token,
@@ -97,12 +103,7 @@ def student_login():
         return jsonify({"msg": "Invalid password"}), 401
 
     access_token = create_access_token(
-        identity={
-            "id": student.id,
-            "role": "student",
-            "student_no": student.student_no,
-            "name": student.name,
-        }
+        identity=str(student.id)
     )
     return jsonify({
         "access_token": access_token,
@@ -116,15 +117,13 @@ def student_login():
 @jwt_required()
 def get_me():
     """Get current user info."""
-    identity = get_jwt_identity()
-    role = identity.get("role")
+    user_id = int(get_jwt_identity())
 
-    if role == "admin":
-        user = db.session.execute(
-            db.select(User).filter_by(id=identity["id"])
-        ).scalar_one_or_none()
-        if not user:
-            return jsonify({"msg": "User not found"}), 404
+    # Try admin first
+    user = db.session.execute(
+        db.select(User).filter_by(id=user_id)
+    ).scalar_one_or_none()
+    if user:
         return jsonify({
             "id": user.id,
             "username": user.username,
@@ -132,12 +131,11 @@ def get_me():
             "name": user.name,
         })
 
-    if role == "student":
-        student = db.session.execute(
-            db.select(Student).filter_by(id=identity["id"])
-        ).scalar_one_or_none()
-        if not student:
-            return jsonify({"msg": "Student not found"}), 404
+    # Try student
+    student = db.session.execute(
+        db.select(Student).filter_by(id=user_id)
+    ).scalar_one_or_none()
+    if student:
         return jsonify({
             "id": student.id,
             "student_no": student.student_no,
@@ -145,4 +143,4 @@ def get_me():
             "role": "student",
         })
 
-    return jsonify({"msg": "Unknown role"}), 400
+    return jsonify({"msg": "User not found"}), 404

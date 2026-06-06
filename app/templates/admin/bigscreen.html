@@ -59,9 +59,18 @@
       right: 20px;
       z-index: 1000;
     }
+    .logout-btn {
+      position: fixed;
+      top: 20px;
+      right: 90px;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
+  <button class="btn btn-outline-danger btn-sm logout-btn" onclick="logout()">
+    退出登录
+  </button>
   <button class="btn btn-outline-light btn-sm fullscreen-btn" onclick="toggleFullscreen()">
     全屏
   </button>

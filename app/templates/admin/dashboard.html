@@ -11,35 +11,27 @@
 <!-- Stat Cards -->
 <div class="row g-4 mb-4 fade-in">
   <div class="col-md-3 col-sm-6">
-    <div class="card stat-card h-100">
-      <div class="card-body">
-        <div class="stat-label">证书总数</div>
-        <div class="stat-value" id="stat-cert-types">0</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-cert-types">0</div>
+      <div class="stat-label">证书总数</div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card stat-card success h-100">
-      <div class="card-body">
-        <div class="stat-label">考试场次</div>
-        <div class="stat-value" id="stat-exams">0</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-exams">0</div>
+      <div class="stat-label">考试场次</div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card stat-card warning h-100">
-      <div class="card-body">
-        <div class="stat-label">报名人数</div>
-        <div class="stat-value" id="stat-registrations">0</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-registrations">0</div>
+      <div class="stat-label">报名人数</div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card stat-card danger h-100">
-      <div class="card-body">
-        <div class="stat-label">通过率</div>
-        <div class="stat-value" id="stat-pass-rate">0%</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-pass-rate">0%</div>
+      <div class="stat-label">通过率</div>
     </div>
   </div>
 </div>
@@ -220,20 +212,22 @@
       xAxis: {
         type: 'category',
         data: sortedKeys,
-        axisLabel: { rotate: 30 }
+        axisLabel: { rotate: 30, color: '#475569' },
+        axisLine: { lineStyle: { color: '#E2E8F0' } }
       },
-      yAxis: { type: 'value', minInterval: 1 },
+      yAxis: { type: 'value', minInterval: 1, axisLabel: { color: '#475569' }, splitLine: { lineStyle: { color: '#F1F5F9' } } },
       series: [{
         data: data,
         type: 'line',
         smooth: true,
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(13,110,253,0.4)' },
-            { offset: 1, color: 'rgba(13,110,253,0.05)' }
+            { offset: 0, color: 'rgba(26,86,219,0.3)' },
+            { offset: 1, color: 'rgba(26,86,219,0.05)' }
           ])
         },
-        itemStyle: { color: '#0d6efd' }
+        itemStyle: { color: '#1A56DB' },
+        lineStyle: { width: 3 }
       }],
       grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true }
     };
@@ -257,20 +251,21 @@
 
     const option = {
       tooltip: { trigger: 'item' },
-      legend: { bottom: '0%', left: 'center' },
+      legend: { bottom: '0%', left: 'center', textStyle: { color: '#475569' } },
       series: [{
         type: 'pie',
         radius: ['40%', '70%'],
         avoidLabelOverlap: false,
         itemStyle: {
-          borderRadius: 10,
+          borderRadius: 8,
           borderColor: '#fff',
           borderWidth: 2
         },
         label: { show: false },
         emphasis: {
-          label: { show: true, fontSize: 16, fontWeight: 'bold' }
+          label: { show: true, fontSize: 14, fontWeight: 'bold' }
         },
+        color: ['#1A56DB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'],
         data: data
       }]
     };
@@ -293,15 +288,15 @@
 
   function getStatusBadge(status) {
     const map = {
-      'upcoming': '<span class="badge bg-info">即将开始</span>',
-      'ongoing': '<span class="badge bg-primary">进行中</span>',
-      'finished': '<span class="badge bg-secondary">已结束</span>',
-      'pending': '<span class="badge bg-warning">待审核</span>',
-      'approved': '<span class="badge bg-success">已通过</span>',
-      'rejected': '<span class="badge bg-danger">已拒绝</span>',
-      'ai_reviewed': '<span class="badge bg-info">AI已审</span>',
+      'upcoming': '<span class="badge badge-pending">即将开始</span>',
+      'ongoing': '<span class="badge" style="background: var(--primary-light); color: var(--primary);">进行中</span>',
+      'finished': '<span class="badge" style="background: #F3F4F6; color: #6B7280;">已结束</span>',
+      'pending': '<span class="badge badge-pending">待审核</span>',
+      'approved': '<span class="badge badge-approved">已通过</span>',
+      'rejected': '<span class="badge badge-rejected">已拒绝</span>',
+      'ai_reviewed': '<span class="badge" style="background: #DBEAFE; color: #1E40AF;">AI已审</span>',
     };
-    return map[status] || `<span class="badge bg-secondary">${escapeHtml(status)}</span>`;
+    return map[status] || `<span class="badge" style="background: #F3F4F6; color: #6B7280;">${escapeHtml(status)}</span>`;
   }
 </script>
 {% endblock %}

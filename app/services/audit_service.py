@@ -26,12 +26,18 @@ def log_operation(action: str, target_type: str, get_target_id=None, get_details
 
             try:
                 # Extract identity
-                identity = get_jwt_identity()
-                user_id = identity.get("id") if identity else None
-                student_id = None
-                if identity and identity.get("role") == "student":
-                    student_id = user_id
-                    user_id = None
+                user_id = int(get_jwt_identity())
+                # Check if user is admin or student
+                from app.models.user import User
+                from app.models.student import Student
+                user = db.session.execute(
+                    db.select(User).filter_by(id=user_id)
+                ).scalar_one_or_none()
+                student = db.session.execute(
+                    db.select(Student).filter_by(id=user_id)
+                ).scalar_one_or_none()
+                student_id = user_id if student else None
+                user_id = user_id if user else None
 
                 # Extract target_id
                 target_id = None
