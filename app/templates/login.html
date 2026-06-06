@@ -33,6 +33,7 @@
     <div class="tab-content" id="loginTabContent">
       <!-- Admin Login Form -->
       <div class="tab-pane fade show active" id="admin-login" role="tabpanel">
+        <div id="admin-error" class="alert alert-danger d-none" role="alert"></div>
         <form id="admin-login-form">
           <div class="mb-3">
             <label for="admin-username" class="form-label fw-medium">用户名</label>
@@ -50,6 +51,7 @@
 
       <!-- Student Login Form -->
       <div class="tab-pane fade" id="student-login" role="tabpanel">
+        <div id="student-error" class="alert alert-danger d-none" role="alert"></div>
         <form id="student-login-form">
           <div class="mb-3">
             <label for="student-no" class="form-label fw-medium">学号</label>
@@ -71,10 +73,22 @@
 
 {% block extra_js %}
 <script>
+  function showLoginError(elementId, message) {
+    const el = document.getElementById(elementId);
+    el.textContent = message;
+    el.classList.remove('d-none');
+    setTimeout(() => { el.classList.add('d-none'); }, 5000);
+  }
+
+  function hideLoginError(elementId) {
+    document.getElementById(elementId).classList.add('d-none');
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     // Admin login
     document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      hideLoginError('admin-error');
       const username = document.getElementById('admin-username').value.trim();
       const password = document.getElementById('admin-password').value;
 
@@ -90,18 +104,16 @@
           username: result.username,
           name: result.name,
         });
-        showAlert('登录成功，正在跳转...', 'success');
-        setTimeout(() => {
-          window.location.href = '/admin';
-        }, 500);
+        window.location.href = '/admin';
       } catch (error) {
-        showAlert(error.message || '登录失败，请检查用户名和密码', 'danger');
+        showLoginError('admin-error', error.message || '登录失败，请检查用户名和密码');
       }
     });
 
     // Student login
     document.getElementById('student-login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      hideLoginError('student-error');
       const studentNo = document.getElementById('student-no').value.trim();
       const password = document.getElementById('student-password').value;
 
@@ -117,13 +129,18 @@
           student_no: result.student_no,
           name: result.name,
         });
-        showAlert('登录成功，正在跳转...', 'success');
-        setTimeout(() => {
-          window.location.href = '/student';
-        }, 500);
+        window.location.href = '/student';
       } catch (error) {
-        showAlert(error.message || '登录失败，请检查学号和密码', 'danger');
+        showLoginError('student-error', error.message || '登录失败，请检查学号和密码');
       }
+    });
+
+    // 切换Tab时清除错误提示
+    document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(tab => {
+      tab.addEventListener('shown.bs.tab', () => {
+        hideLoginError('admin-error');
+        hideLoginError('student-error');
+      });
     });
   });
 </script>

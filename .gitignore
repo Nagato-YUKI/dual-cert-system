@@ -50,10 +50,13 @@ acceptance_screenshots/
 acceptance_test.py
 acceptance_test_full.py
 acceptance_test_report.json
-screenshots/
 test_screenshots/
 test_route_verification.py
 check_data.py
 task_plan.md
 findings.md
 progress.md
+screenshot.js
+package.json
+package-lock.json
+node_modules/
