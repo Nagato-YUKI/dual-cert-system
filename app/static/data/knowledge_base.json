@@ -1,0 +1,426 @@
+{
+  "certificates": [
+    {
+      "id": "cet4",
+      "name": "CET-4（大学英语四级）",
+      "category": "人社类",
+      "keywords": ["cet4", "cet-4", "四级", "英语四级", "大学英语四级", "大学四级"],
+      "requirements": {
+        "education": "在校大学生（专科/本科/研究生）",
+        "prerequisite": "无前置证书要求",
+        "other": "仅限在校生报考，毕业生不可报考"
+      },
+      "exam_schedule": {
+        "frequency": "每年2次",
+        "months": ["6月", "12月"],
+        "registration_time": "3月和9月（具体以学校通知为准）"
+      },
+      "fees": {
+        "amount": "约30元",
+        "note": "各省份略有差异，以学校通知为准"
+      },
+      "subjects": [
+        {
+          "name": "CET-4笔试",
+          "format": "笔试（听力+阅读+翻译+写作）",
+          "duration": "125分钟",
+          "total_score": 710
+        }
+      ],
+      "passing_score": 425,
+      "validity": "长期有效（部分用人单位认可近两年成绩）",
+      "required_materials": ["学生证", "身份证", "2寸蓝底照片", "报名费"],
+      "faq": [
+        {"q": "CET-4多少分及格？", "a": "CET-4满分710分，425分及以上为通过。"},
+        {"q": "毕业后还能考CET-4吗？", "a": "不可以，CET-4仅限在校大学生报考。"},
+        {"q": "CET-4可以刷分吗？", "a": "可以，多次考试成绩独立有效，取最高分即可。"}
+      ]
+    },
+    {
+      "id": "cet6",
+      "name": "CET-6（大学英语六级）",
+      "category": "人社类",
+      "keywords": ["cet6", "cet-6", "六级", "英语六级", "大学英语六级", "大学六级"],
+      "requirements": {
+        "education": "在校大学生（专科/本科/研究生）",
+        "prerequisite": "需通过CET-4（425分及以上）",
+        "other": "仅限在校生报考"
+      },
+      "exam_schedule": {
+        "frequency": "每年2次",
+        "months": ["6月", "12月"],
+        "registration_time": "3月和9月（与CET-4同期）"
+      },
+      "fees": {
+        "amount": "约30元",
+        "note": "各省份略有差异"
+      },
+      "subjects": [
+        {
+          "name": "CET-6笔试",
+          "format": "笔试（听力+阅读+翻译+写作）",
+          "duration": "130分钟",
+          "total_score": 710
+        }
+      ],
+      "passing_score": 425,
+      "validity": "长期有效",
+      "required_materials": ["学生证", "身份证", "CET-4成绩单（425分以上）", "2寸蓝底照片", "报名费"],
+      "faq": [
+        {"q": "CET-6报名需要什么条件？", "a": "需要先通过CET-4且成绩达到425分及以上。"},
+        {"q": "CET-6和CET-4可以同时报名吗？", "a": "不可以，同一考试批次只能报一个级别。"},
+        {"q": "CET-6多少分算优秀？", "a": "425分通过，520分以上算良好，550分以上算优秀。"}
+      ]
+    },
+    {
+      "id": "putonghua",
+      "name": "普通话水平测试",
+      "category": "人社类",
+      "keywords": ["普通话", "普通话测试", "普通话等级", "普通话水平"],
+      "requirements": {
+        "education": "无学历限制",
+        "prerequisite": "无前置证书要求",
+        "other": "社会人员及在校生均可报考"
+      },
+      "exam_schedule": {
+        "frequency": "每月均有考试（各地不同）",
+        "months": ["全年可考"],
+        "registration_time": "各地语委办自行安排，建议关注当地通知"
+      },
+      "fees": {
+        "amount": "学生25元/社会人员50元",
+        "note": "各地略有差异"
+      },
+      "subjects": [
+        {
+          "name": "普通话水平测试",
+          "format": "口试（读单音节字词+读多音节词语+朗读短文+命题说话）",
+          "duration": "约13分钟",
+          "total_score": 100
+        }
+      ],
+      "passing_score": 60,
+      "validity": "长期有效",
+      "required_materials": ["身份证", "2寸照片", "报名费"],
+      "faq": [
+        {"q": "普通话等级怎么划分？", "a": "一级甲等(97-100)、一级乙等(92-96.9)、二级甲等(87-91.9)、二级乙等(80-86.9)、三级甲等(70-79.9)、三级乙等(60-69.9)。"},
+        {"q": "教师资格证需要几级普通话？", "a": "语文教师需二级甲等及以上，其他学科教师需二级乙等及以上。"},
+        {"q": "普通话证书有效期多久？", "a": "普通话水平测试等级证书长期有效。"}
+      ]
+    },
+    {
+      "id": "ncre_python",
+      "name": "计算机二级（Python语言程序设计）",
+      "category": "专业类",
+      "keywords": ["计算机二级", "python", "二级python", "计算机二级python", "ncre", "国二"],
+      "requirements": {
+        "education": "无学历限制",
+        "prerequisite": "无前置证书要求",
+        "other": "任何人均可报考"
+      },
+      "exam_schedule": {
+        "frequency": "每年2-3次",
+        "months": ["3月", "9月", "12月（部分省市）"],
+        "registration_time": "考前1-2个月"
+      },
+      "fees": {
+        "amount": "约80-120元",
+        "note": "各省收费标准不同"
+      },
+      "subjects": [
+        {
+          "name": "Python语言程序设计",
+          "format": "上机考试（选择题+编程操作题）",
+          "duration": "120分钟",
+          "total_score": 100
+        }
+      ],
+      "passing_score": 60,
+      "validity": "长期有效",
+      "required_materials": ["身份证", "2寸照片", "报名费"],
+      "faq": [
+        {"q": "计算机二级Python考什么？", "a": "包括Python基本语法、数据类型、程序控制结构、函数、文件操作、第三方库等，题型为选择题(40分)和操作题(60分)。"},
+        {"q": "计算机二级难吗？", "a": "Python相对其他科目较易入门，但操作题需要实际编程能力，建议多练习。"},
+        {"q": "计算机二级证书有用吗？", "a": "部分高校要求毕业需获得，求职时也是计算机能力的证明。"}
+      ]
+    },
+    {
+      "id": "ncre_office",
+      "name": "计算机二级（MS Office高级应用）",
+      "category": "专业类",
+      "keywords": ["计算机二级", "ms office", "office", "二级office", "办公软件", "word", "excel", "ppt"],
+      "requirements": {
+        "education": "无学历限制",
+        "prerequisite": "无前置证书要求",
+        "other": "任何人均可报考"
+      },
+      "exam_schedule": {
+        "frequency": "每年2-3次",
+        "months": ["3月", "9月", "12月（部分省市）"],
+        "registration_time": "考前1-2个月"
+      },
+      "fees": {
+        "amount": "约80-120元",
+        "note": "各省收费标准不同"
+      },
+      "subjects": [
+        {
+          "name": "MS Office高级应用",
+          "format": "上机考试（选择题+Word+Excel+PPT操作题）",
+          "duration": "120分钟",
+          "total_score": 100
+        }
+      ],
+      "passing_score": 60,
+      "validity": "长期有效",
+      "required_materials": ["身份证", "2寸照片", "报名费"],
+      "faq": [
+        {"q": "计算机二级Office考什么？", "a": "包括选择题(20分)、Word操作(30分)、Excel操作(30分)、PPT操作(20分)。"},
+        {"q": "Office和Python哪个好考？", "a": "Office侧重实操，Python侧重编程逻辑，根据个人基础选择。Office上手较快但Excel函数较难。"},
+        {"q": "考试用的是什么版本的Office？", "a": "目前考试使用MS Office 2016版本。"}
+      ]
+    },
+    {
+      "id": "teacher_cert",
+      "name": "教师资格证",
+      "category": "专业类",
+      "keywords": ["教师资格", "教资", "教师资格证", "教师证", "当老师"],
+      "requirements": {
+        "education": "大专及以上学历（幼教/小学）；本科及以上学历（中学）",
+        "prerequisite": "无前置证书要求，需普通话等级证书（认定时提供）",
+        "other": "在校生大三及以上可报考笔试"
+      },
+      "exam_schedule": {
+        "frequency": "每年2次",
+        "months": ["3月（上半年）", "11月（下半年）"],
+        "registration_time": "1月和9月"
+      },
+      "fees": {
+        "amount": "笔试52-70元/科，面试200-300元",
+        "note": "各省收费标准不同"
+      },
+      "subjects": [
+        {
+          "name": "综合素质（科目一）",
+          "format": "笔试（单选+材料分析+写作）",
+          "duration": "120分钟",
+          "total_score": 150
+        },
+        {
+          "name": "教育知识与能力（科目二）",
+          "format": "笔试（单选+辨析+简答+材料分析）",
+          "duration": "120分钟",
+          "total_score": 150
+        },
+        {
+          "name": "面试",
+          "format": "结构化问答+试讲+答辩",
+          "duration": "约20分钟",
+          "total_score": 100
+        }
+      ],
+      "passing_score": 70,
+      "validity": "笔试成绩有效期2年，面试合格证明有效期3年",
+      "required_materials": ["身份证", "学历证明", "普通话等级证书（认定时）", "2寸照片", "报名费"],
+      "faq": [
+        {"q": "教师资格证笔试多少分及格？", "a": "卷面满分150分，折合70分及以上为通过（实际卷面约需90分以上）。"},
+        {"q": "大三可以考教师资格证吗？", "a": "可以，在校生大三及以上可以报考笔试，面试需在毕业学期报考。"},
+        {"q": "教师资格证有效期多久？", "a": "笔试单科成绩有效期2年，面试合格证明有效期3年，需在有效期内完成认定。"},
+        {"q": "考教师资格证需要普通话几级？", "a": "语文教师需二级甲等，其他学科教师需二级乙等。"}
+      ]
+    },
+    {
+      "id": "accounting_junior",
+      "name": "会计初级（初级会计职称）",
+      "category": "专业类",
+      "keywords": ["会计初级", "初级会计", "会计职称", "初级会计师", "会计证", "会计"],
+      "requirements": {
+        "education": "高中及以上学历（含高中、中专、职高）",
+        "prerequisite": "无前置证书要求",
+        "other": "无工作年限要求"
+      },
+      "exam_schedule": {
+        "frequency": "每年1次",
+        "months": ["5月"],
+        "registration_time": "上年12月至当年1月"
+      },
+      "fees": {
+        "amount": "约100-160元（两科）",
+        "note": "各省收费标准不同"
+      },
+      "subjects": [
+        {
+          "name": "初级会计实务",
+          "format": "笔试/机考（单选+多选+判断+不定项选择）",
+          "duration": "105分钟",
+          "total_score": 100
+        },
+        {
+          "name": "经济法基础",
+          "format": "笔试/机考（单选+多选+判断+不定项选择）",
+          "duration": "75分钟",
+          "total_score": 100
+        }
+      ],
+      "passing_score": 60,
+      "validity": "长期有效",
+      "required_materials": ["身份证", "学历证明", "2寸照片", "报名费"],
+      "faq": [
+        {"q": "会计初级考几科？", "a": "考两科：《初级会计实务》和《经济法基础》，两科需在同一年通过。"},
+        {"q": "会计初级多少分及格？", "a": "每科满分100分，60分及格。两科需在同一年度内同时通过。"},
+        {"q": "大专在读可以考会计初级吗？", "a": "可以，高中及以上学历即可报考，大专在读符合条件。"}
+      ]
+    },
+    {
+      "id": "office_app",
+      "name": "办公软件应用",
+      "category": "校内引进",
+      "keywords": ["办公软件", "办公应用", "校内办公", "office应用"],
+      "requirements": {
+        "education": "本校在校学生",
+        "prerequisite": "无前置证书要求",
+        "other": "校内引进证书，仅限本校学生报考"
+      },
+      "exam_schedule": {
+        "frequency": "每学期1-2次",
+        "months": ["按学校安排"],
+        "registration_time": "关注校内通知"
+      },
+      "fees": {
+        "amount": "按学校标准收取",
+        "note": "具体费用以校内通知为准"
+      },
+      "subjects": [
+        {
+          "name": "办公软件应用",
+          "format": "上机考试（Word+Excel+PPT实操）",
+          "duration": "90分钟",
+          "total_score": 100
+        }
+      ],
+      "passing_score": 60,
+      "validity": "长期有效",
+      "required_materials": ["学生证", "身份证", "报名费"],
+      "faq": [
+        {"q": "办公软件应用考什么？", "a": "主要考查Word文档编辑、Excel数据处理和PPT演示制作等实操能力。"},
+        {"q": "这个证书和计算机二级Office有什么区别？", "a": "校内引进的办公软件应用侧重基础实操，难度低于计算机二级，适合入门学习。"}
+      ]
+    },
+    {
+      "id": "web_design",
+      "name": "网页设计",
+      "category": "校内引进",
+      "keywords": ["网页设计", "网页制作", "前端", "web设计", "html"],
+      "requirements": {
+        "education": "本校在校学生",
+        "prerequisite": "无前置证书要求",
+        "other": "校内引进证书，仅限本校学生报考"
+      },
+      "exam_schedule": {
+        "frequency": "每学期1-2次",
+        "months": ["按学校安排"],
+        "registration_time": "关注校内通知"
+      },
+      "fees": {
+        "amount": "按学校标准收取",
+        "note": "具体费用以校内通知为准"
+      },
+      "subjects": [
+        {
+          "name": "网页设计",
+          "format": "上机考试（HTML+CSS+JavaScript实操）",
+          "duration": "90分钟",
+          "total_score": 100
+        }
+      ],
+      "passing_score": 60,
+      "validity": "长期有效",
+      "required_materials": ["学生证", "身份证", "报名费"],
+      "faq": [
+        {"q": "网页设计考什么？", "a": "主要考查HTML页面结构、CSS样式设计和JavaScript基础交互的实现能力。"},
+        {"q": "没有编程基础可以考吗？", "a": "可以，课程从零基础开始教学，适合初学者。"}
+      ]
+    },
+    {
+      "id": "db_management",
+      "name": "数据库管理",
+      "category": "校内引进",
+      "keywords": ["数据库", "数据库管理", "sql", "mysql", "数据库管理"],
+      "requirements": {
+        "education": "本校在校学生",
+        "prerequisite": "无前置证书要求",
+        "other": "校内引进证书，仅限本校学生报考"
+      },
+      "exam_schedule": {
+        "frequency": "每学期1-2次",
+        "months": ["按学校安排"],
+        "registration_time": "关注校内通知"
+      },
+      "fees": {
+        "amount": "按学校标准收取",
+        "note": "具体费用以校内通知为准"
+      },
+      "subjects": [
+        {
+          "name": "数据库管理",
+          "format": "上机考试（SQL语句+数据库设计+管理操作）",
+          "duration": "90分钟",
+          "total_score": 100
+        }
+      ],
+      "passing_score": 60,
+      "validity": "长期有效",
+      "required_materials": ["学生证", "身份证", "报名费"],
+      "faq": [
+        {"q": "数据库管理考什么？", "a": "主要考查SQL语句编写、数据库表设计、数据查询与管理等实操能力。"},
+        {"q": "学什么数据库？", "a": "以MySQL为主，涵盖关系型数据库的基本概念和操作。"}
+      ]
+    },
+    {
+      "id": "innovation",
+      "name": "创新创业",
+      "category": "校内引进",
+      "keywords": ["创新创业", "创业", "创新", "双创"],
+      "requirements": {
+        "education": "本校在校学生",
+        "prerequisite": "无前置证书要求",
+        "other": "校内引进证书，仅限本校学生报考"
+      },
+      "exam_schedule": {
+        "frequency": "每学期1-2次",
+        "months": ["按学校安排"],
+        "registration_time": "关注校内通知"
+      },
+      "fees": {
+        "amount": "按学校标准收取",
+        "note": "具体费用以校内通知为准"
+      },
+      "subjects": [
+        {
+          "name": "创新创业",
+          "format": "项目答辩+商业计划书评审",
+          "duration": "按学校安排",
+          "total_score": 100
+        }
+      ],
+      "passing_score": 60,
+      "validity": "长期有效",
+      "required_materials": ["学生证", "身份证", "商业计划书", "报名费"],
+      "faq": [
+        {"q": "创新创业证书考什么？", "a": "主要考查商业计划书撰写和项目路演答辩能力，侧重创新思维和创业实践。"},
+        {"q": "没有创业经验可以考吗？", "a": "可以，课程会教授创业基础知识，不需要实际创业经验。"}
+      ]
+    }
+  ],
+  "general_qa": [
+    {"keywords": ["报名", "怎么报名", "如何报名"], "answer": "报名流程：1.登录本系统 → 2.进入「报名」页面 → 3.选择要报考的证书 → 4.填写报名信息 → 5.提交审核。审核通过后即报名成功。"},
+    {"keywords": ["费用", "多少钱", "收费", "报名费"], "answer": "各类证书报名费用不同：CET-4/6约30元、计算机二级约80-120元、教师资格证笔试52-70元/科、会计初级约100-160元、校内证书按学校标准收取。具体费用以报名时显示为准。"},
+    {"keywords": ["时间", "什么时候", "考试时间", "什么时候考"], "answer": "主要证书考试时间：CET-4/6在6月和12月、计算机二级在3月和9月、教师资格证在3月和11月、会计初级在5月。校内证书按学校安排。请关注系统通知获取具体日期。"},
+    {"keywords": ["通过", "及格", "分数线", "多少分过"], "answer": "各证书通过标准不同：CET-4/6需425分（满分710）、计算机二级需60分（满分100）、教师资格证折合70分（满分150）、会计初级每科60分（满分100）、校内证书60分（满分100）。"},
+    {"keywords": ["材料", "需要什么", "准备什么", "报名材料"], "answer": "报名通常需要：身份证、学生证（在校生）、2寸蓝底照片、报名费。部分证书有特殊要求，如教师资格证认定需普通话证书、CET-6需CET-4成绩单。"},
+    {"keywords": ["有效期", "有效", "过期", "几年有效"], "answer": "大部分证书长期有效（CET-4/6、计算机二级、普通话、会计初级、校内证书）。教师资格证笔试成绩有效期2年，面试合格证明有效期3年，需在有效期内完成认定。"},
+    {"keywords": ["你好", "嗨", "在吗", "hello", "hi"], "answer": "你好！我是证书考试助手，可以帮你解答关于各类证书考试的疑问。你可以问我关于报名条件、考试时间、费用、科目等问题，也可以点击下方的快捷问题按钮。"},
+    {"keywords": ["谢谢", "感谢", "多谢", "thanks"], "answer": "不客气！如果还有其他问题，随时可以问我。祝你考试顺利！"},
+    {"keywords": ["能考什么", "有哪些", "证书列表", "什么证书"], "answer": "本系统支持的证书包括：\n人社类：CET-4、CET-6、普通话水平测试\n专业类：计算机二级Python、计算机二级MS Office、教师资格证、会计初级\n校内引进：办公软件应用、网页设计、数据库管理、创新创业\n你可以告诉我感兴趣的证书，我为你详细介绍。"}
+  ]
+}

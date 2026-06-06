@@ -93,6 +93,376 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+  <!-- AI Chatbot Widget -->
+  <div id="chat-widget">
+    <!-- Floating Button -->
+    <button id="chat-toggle-btn" type="button" aria-label="打开AI助手">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+    </button>
+
+    <!-- Chat Window -->
+    <div id="chat-window" style="display: none;">
+      <div id="chat-header">
+        <span>证书考试助手</span>
+        <button id="chat-close-btn" type="button" aria-label="关闭">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div id="chat-messages">
+        <div class="chat-msg bot">
+          <div class="chat-bubble">你好！我是证书考试助手，可以帮你解答各类证书考试的问题。试试点击下方快捷问题，或直接输入你的问题吧！</div>
+        </div>
+      </div>
+      <div id="chat-quick-questions">
+        <button class="quick-q" data-q="CET-4怎么报名？">CET-4报名</button>
+        <button class="quick-q" data-q="计算机二级考什么？">计算机二级</button>
+        <button class="quick-q" data-q="教师资格证需要什么条件？">教师资格证</button>
+        <button class="quick-q" data-q="有哪些证书可以考？">证书列表</button>
+      </div>
+      <div id="chat-input-area">
+        <input type="text" id="chat-input" placeholder="输入你的问题..." autocomplete="off">
+        <button id="chat-send-btn" type="button" aria-label="发送">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    #chat-widget {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1060;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+    }
+
+    #chat-toggle-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--primary, #1A56DB);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(26, 86, 219, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 150ms, box-shadow 150ms;
+    }
+    #chat-toggle-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 16px rgba(26, 86, 219, 0.45);
+    }
+
+    #chat-window {
+      position: absolute;
+      bottom: 64px;
+      right: 0;
+      width: 340px;
+      height: 480px;
+      background: var(--card, #fff);
+      border: 1px solid var(--border, #E2E8F0);
+      border-radius: var(--radius-xl, 12px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: chatSlideUp 200ms ease-out;
+    }
+
+    @keyframes chatSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #chat-header {
+      background: var(--primary, #1A56DB);
+      color: #fff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    #chat-close-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      padding: 2px;
+      opacity: 0.8;
+      transition: opacity 150ms;
+    }
+    #chat-close-btn:hover { opacity: 1; }
+
+    #chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .chat-msg { display: flex; }
+    .chat-msg.user { justify-content: flex-end; }
+    .chat-msg.bot { justify-content: flex-start; }
+
+    .chat-bubble {
+      max-width: 85%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+    .chat-msg.user .chat-bubble {
+      background: var(--primary, #1A56DB);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-msg.bot .chat-bubble {
+      background: #F1F5F9;
+      color: var(--text-primary, #0F172A);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-typing .chat-bubble {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 12px 16px;
+    }
+    .chat-typing .dot {
+      width: 6px; height: 6px;
+      background: #94A3B8;
+      border-radius: 50%;
+      animation: typingBounce 1.2s infinite;
+    }
+    .chat-typing .dot:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-4px); }
+    }
+
+    #chat-quick-questions {
+      padding: 6px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      flex-shrink: 0;
+      border-top: 1px solid var(--border, #E2E8F0);
+    }
+
+    .quick-q {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid var(--border, #E2E8F0);
+      background: var(--bg, #F8FAFC);
+      color: var(--text-secondary, #475569);
+      cursor: pointer;
+      transition: all 150ms;
+      white-space: nowrap;
+    }
+    .quick-q:hover {
+      border-color: var(--primary, #1A56DB);
+      color: var(--primary, #1A56DB);
+      background: var(--primary-light, #EBF0FE);
+    }
+
+    #chat-input-area {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      gap: 8px;
+      border-top: 1px solid var(--border, #E2E8F0);
+      flex-shrink: 0;
+    }
+
+    #chat-input {
+      flex: 1;
+      border: 1px solid var(--border, #E2E8F0);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 150ms;
+    }
+    #chat-input:focus {
+      border-color: var(--primary, #1A56DB);
+    }
+
+    #chat-send-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary, #1A56DB);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background-color 150ms;
+    }
+    #chat-send-btn:hover {
+      background: var(--primary-hover, #1E429F);
+    }
+    #chat-send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      #chat-window {
+        width: calc(100vw - 32px);
+        height: calc(100vh - 120px);
+        bottom: 60px;
+        right: -8px;
+      }
+    }
+  </style>
+
+  <script>
+  (function() {
+    var toggleBtn = document.getElementById('chat-toggle-btn');
+    var chatWindow = document.getElementById('chat-window');
+    var closeBtn = document.getElementById('chat-close-btn');
+    var inputEl = document.getElementById('chat-input');
+    var sendBtn = document.getElementById('chat-send-btn');
+    var messagesEl = document.getElementById('chat-messages');
+    var quickBtns = document.querySelectorAll('.quick-q');
+    var isOpen = false;
+    var isSending = false;
+
+    function toggleChat() {
+      isOpen = !isOpen;
+      chatWindow.style.display = isOpen ? 'flex' : 'none';
+      if (isOpen) {
+        inputEl.focus();
+        scrollToBottom();
+      }
+    }
+
+    toggleBtn.addEventListener('click', toggleChat);
+    closeBtn.addEventListener('click', function() {
+      isOpen = false;
+      chatWindow.style.display = 'none';
+    });
+
+    function scrollToBottom() {
+      setTimeout(function() {
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }, 50);
+    }
+
+    function appendMessage(text, sender) {
+      var msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-msg ' + sender;
+      var bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      bubble.textContent = text;
+      msgDiv.appendChild(bubble);
+      messagesEl.appendChild(msgDiv);
+      scrollToBottom();
+    }
+
+    function showTyping() {
+      var msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-msg bot chat-typing';
+      msgDiv.id = 'typing-indicator';
+      var bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      bubble.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+      msgDiv.appendChild(bubble);
+      messagesEl.appendChild(msgDiv);
+      scrollToBottom();
+    }
+
+    function hideTyping() {
+      var el = document.getElementById('typing-indicator');
+      if (el) el.remove();
+    }
+
+    async function sendMessage(text) {
+      if (!text || !text.trim() || isSending) return;
+      text = text.trim();
+      appendMessage(text, 'user');
+      inputEl.value = '';
+      isSending = true;
+      sendBtn.disabled = true;
+
+      showTyping();
+
+      try {
+        var token = localStorage.getItem('access_token');
+        var response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + (token || '')
+          },
+          body: JSON.stringify({ message: text })
+        });
+
+        hideTyping();
+
+        if (response.ok) {
+          var data = await response.json();
+          appendMessage(data.reply || '抱歉，出了点问题。', 'bot');
+        } else if (response.status === 401) {
+          appendMessage('请先登录后再使用AI助手。', 'bot');
+        } else {
+          appendMessage('抱歉，服务暂时不可用，请稍后再试。', 'bot');
+        }
+      } catch (err) {
+        hideTyping();
+        appendMessage('网络错误，请检查网络连接后重试。', 'bot');
+      }
+
+      isSending = false;
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }
+
+    sendBtn.addEventListener('click', function() {
+      sendMessage(inputEl.value);
+    });
+
+    inputEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage(inputEl.value);
+      }
+    });
+
+    quickBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var q = btn.getAttribute('data-q');
+        sendMessage(q);
+      });
+    });
+  })();
+  </script>
+
   {% block extra_js %}{% endblock %}
 </body>
 </html>
